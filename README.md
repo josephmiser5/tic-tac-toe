@@ -4,4 +4,4 @@ This is my tic tac toe **application**
 * It will do things  
 * Maybe
 
-![](tic_tac_toe_wireframe.png)
+![image_not_loaded](home/desktop/tic_tac_toe_wireframe.png)
