@@ -25,7 +25,7 @@ I am going to use the required technologies in the following ways.
 * HTML \- I will use HTML to create clean, clear application design. I will create a login page, a friend search page, and a game page with score tracking.  
 * CSS \- I will use CSS to make my application appealing, user friendly, and eye-catching.  
 * React \- I will use react to organize a user interface that is easy to use and intuitive.  
-* Service \- I will use it to create an API that will be used for:  
+* Service \- I will create an API that will be used for:  
   * Logins  
   * Sending and receiving friend requests  
   * Sending and receiving in game messages  
