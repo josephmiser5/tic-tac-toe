@@ -7,7 +7,8 @@ Are you tired of your friends beating you at complicated games like Chess and Ch
 
 **Design**
 
-![invalid image](c:\Users\jmans\OneDrive\Desktop\tic_tac_toe_wireframe.png)
+![Alt text](c:\Users\jmans\OneDrive\Desktop\tic_tac_toe_wireframe.png)
+
 
 
 **Key Features**
