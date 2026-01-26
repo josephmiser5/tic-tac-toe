@@ -31,3 +31,50 @@ I am going to use the required technologies in the following ways.
   * Sending and receiving in game messages  
 * DB/Login \- I will store game win/loss data in a database along with usernames and login information.  
 * WebSocket \- I will use these to transfer real time moves from client to client machine.
+
+**HTML deliverable**
+
+**Prerequisites**
+
+* I completed all of the prerequisites i.e. Simon deployed to my production environment, added a link to my gitHub repo at the bottom of each page. I have done regular Git commits to show my work history.
+
+**HTML pages**
+
+* index.html  \- Login page for users to enter a username and password  
+* play.html \- Main game page to play Tic-Tac-Toe  
+* friends.html \- Page to search and invite friends  
+* win-loss.html \- Page with win/loss data
+
+**Proper HTML element use**
+
+* Used html elements across all pages including header, nav, main, section, footer, form, and table  
+* There is consistent navigation across pages
+
+**Link navigation**
+
+* Navigation bar at the top of page includes links to all pages  
+* The login form routes players to the main game page  
+* Includes buttons to navigate between friends and gameplay features
+
+**Text**
+
+* Text describes application functionality, and game modes  
+* Pages contain text explaining future functionality
+
+**3rd-party API placeholders**
+
+* Friends page has placeholder for a REST API to retrieve friend data  
+* Win/loss page includes placeholder for REST API to retrieve win/loss stats
+
+**Images**
+
+* Game page includes images for the Tic-Tac-Toe board and pictures for X or O options
+
+**Database and login placeholders**
+
+* Username and password input area with submit button  
+* Win/loss and friends pages contain mock datasets representing stored records
+
+**WebSocket Placeholder**
+
+* Game page includes a websocket placeholder to show where realtime websocket information will be received
