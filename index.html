@@ -2,6 +2,9 @@
 <html lang="en">
     <head>
         <title>Tic-Tac-Toe HTML</title>
+        <link rel="stylesheet" href="main.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     </head>
     <body>
         <header>
@@ -15,24 +18,23 @@
                 </menu>
             </nav>
         </header>
-        <hr />
+        <p></p> 
         <main>
-           <h1>User Login</h1> 
-           <p>Login and start having fun&excl;</p>
-           <form method="get">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" placeholder="Enter username">
-           </form>
-           <form method="get" action="play.html">
-            <label for="password">Password:</label>
-            <input type="text" id="password" name="password" placeholder="Enter password">
-            <button type="submit">Login</button>
-           </form>
+           <h2>Login and Start Having Fun</h2> 
+            <form method="get" action="play.html">
+              <label id="usernamelabel" for="username">Username:</label>
+              <input type="text" id="username" name="username" placeholder="Enter username">
+              <br>
+              <label id="passwordlabel" for="password">Password:</label>
+              <input type="text" id="password" name="password" placeholder="Enter password">
+                <p></p>
+              <button id="login" type="submit">Login</button>
+              <button id="create" type="submit">Create</button>
+            </form>
         </main>
         <footer>
             <hr /> 
             <span class="text-reset">Joseph Miser</span>
-            <br />
             <a href="https://github.com/josephmiser5/tic-tac-toe">GitHub</a>
         </footer>
     </body>

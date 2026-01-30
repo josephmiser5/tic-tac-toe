@@ -3,6 +3,8 @@
 <html lang="en">
     <head>
         <title>Tic-Tac-Toe HTML</title> <!-- Username will be dynamically loaded after login -->
+        <link rel="stylesheet" href="play.css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
         <header>
@@ -16,35 +18,35 @@
                 </menu>
             </nav>
         </header>
-        <hr />
+        <p></p>
         <main>
-            <p style="font-size: 24px;"><strong><u>Best of 1</u>&nbsp;&nbsp;&nbsp;<u>Best of 2</u>&nbsp;&nbsp;&nbsp;<u>Best of 3</u></strong></p>
+            <button id="bestof1"><p>Best of 1</p></button>
+            <button id="bestof2"><p>Best of 2</p></button>
+            <button id="bestof2"><p>Best of 2</p></button>
             <style>
                 .html-box {
-                border: 2px solid blue;
+                border: 0px solid blue;
                 padding: 2px;  
                 margin: 20px;  
                 width: 300px;
                 }
             </style>           
-            <div class="html-box">
+            <div id="usernamebox" class="html-box">
                 <p>&nbsp;Username: Tic_Tac_Toe_Player</p>
             </div>
             <p>Waiting for opponent move.... (Websocket connection placeholder)</p>
             <p style="font-size: 24px;";><strong><u>Choose a letter</u></strong></p>
             <button> 
-                <img src="x.png" width="100">
+               <img src="clearx.png" width="100">
             </button>
             <button> 
                 <img src="o.png" width="100">
             </button>
             <p></p>
-            <img src="grid.png" width="500">
+            <img src="grid.png" width="450">
             <p></p>
             <p style="font-size: 24px;"><strong>Best of 1</strong></p>
-            <p></p>
             <p style="font-size: 22px;"><strong>X-score: 0 &nbsp;&nbsp;&nbsp; O-score: 0</strong></p>
-            <p></p>
             <form method="get" action="friends.html">
                 <button>
                     <p><strong>Add friend?</strong></p>
