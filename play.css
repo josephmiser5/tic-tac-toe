@@ -87,34 +87,7 @@ main {
     border-width: 4px;
 }
 
-.x-shape{
-  --size: 120px;
-  --thickness: 14px;
-  --color: #111;
 
-  width: var(--size);
-  height: var(--size);
-  position: relative;
-
-  background: transparent; /* clear background */ 
-}
-
-.x-shape::before,
-.x-shape::after{
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--size);
-  height: var(--thickness);
-  background: var(--color);
-  border-radius: calc(var(--thickness) / 2);
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-
-.x-shape::after{
-  transform: translate(-50%, -50%) rotate(-45deg);
-}
 
 footer {
   position: fixed;
