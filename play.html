@@ -4,7 +4,7 @@
     <head>
         <title>Tic-Tac-Toe HTML</title> <!-- Username will be dynamically loaded after login -->
         <link rel="stylesheet" href="play.css"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />       
     </head>
     <body>
         <header>
@@ -22,7 +22,7 @@
         <main>
             <button id="bestof1"><p>Best of 1</p></button>
             <button id="bestof2"><p>Best of 2</p></button>
-            <button id="bestof2"><p>Best of 2</p></button>
+            <button id="bestof3"><p>Best of 3</p></button>
             <style>
                 .html-box {
                 border: 0px solid blue;
@@ -45,16 +45,18 @@
             </button>
             <p></p>
             <img src="tic_tac_toe_board.png" width="450">
-            <p></p>
-            <span class="text-box-border">Best of 1</span>
+            <br>
             <span class="text-box-border">X-score: 0</span>
-            <span class="text-box-border">O-score: 0</span>
+            <span class="text-box-border">O-score: 0</span>           
+            <br>
+            <span class="text-box-border">Best of 1</span>
+            <br>
+            <button id="playagain">
+                <p>Play again?</p>
+            </button>
             <form method="get" action="friends.html">
-                <button>
-                    <p><strong>Add friend?</strong></p>
-                </button>
-                <button>
-                    <p><strong>Play again?</strong></p>
+                <button id="addfriend">
+                    <p>Add friend?</p>
                 </button>
             </form>
         </main>
