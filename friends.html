@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <title>Tic-Tac-Toe HTML</title>
-        <link rel="stylesheet" href="play.css"/>
+        <link rel="stylesheet" href="friends.css"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />       
     </head>
     <body>
@@ -18,9 +18,9 @@
                 </menu>
             </nav>
         </header>
-        <hr />
+        <br>
         <main>
-           <form method="get">
+           <form id="searchfriends" method="get">
             <label for="username">Search friends:</label>
             <input type="text" id="friends-username" name="friendsUsername">
             <button type="submit">Search</button>
@@ -32,24 +32,24 @@
                 This data will be loaded from a 3rd-party REST API (e.g., friends service).
             </p>
             </section>
-           <table>
+           <table id="friendstable">
             <thead>
                 <tr>
-                    <th><u>Select friends name to send invite:</u></th>
+                    <th id="tableheader">Select friends name to send invite:</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><button type="submit">You</button></td>
+                    <td><button id="friend1" type="submit">You</button></td>
                 </tr>
                 <tr>
-                    <td><button type="submit">Yourself</button></td>
+                    <td><button id="friend2" type="submit">Yourself</button></td>
                 </tr>
                 <tr>
-                    <td><button type="submit">Thyself</button></td>
+                    <td><button id="friend3" type="submit">Thyself</button></td>
                 </tr>
                 <tr>
-                    <td><button type="submit">Not me</button></td> 
+                    <td><button id="friend4" type="submit">Not me</button></td> 
                 </tr>
             </tbody>
            </table>
@@ -57,7 +57,6 @@
         <footer>
             <hr /> 
             <span class="text-reset">Joseph Miser</span>
-            <br />
             <a href="https://github.com/josephmiser5/tic-tac-toe">GitHub</a>
         </footer>
     </body>
