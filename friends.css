@@ -88,10 +88,10 @@ main {
 }
 
 table {
-  width: 100%; /* Makes the table span the full width of its container */
-  border-collapse: collapse; /* Collapses borders into a single border */
+  width: 100%;
+  border-collapse: collapse;
   margin: 1rem 0;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 }
 
 #tableheader {
@@ -100,28 +100,28 @@ table {
 }
 
 th, td {
-  padding: 0.75rem; /* Adds padding inside cells */
-  text-align: left; /* Aligns text to the left */
-  border-bottom: 1px solid #ddd; /* Adds a light horizontal divider */
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 thead th {
-  background-color: 0; /* Header background color */
-  color: white; /* Header text color */
+  background-color: 0;
+  color: white;
   font-weight: bold;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #f0edd5; /* Zebra striping for even rows */
+  background-color: #f0edd5;
 }
 
 tbody tr:hover {
-  background-color: #ddd; /* Hover effect for rows */
+  background-color: #ddd;
   
 }
 
 tbody tr:last-child td {
-  border-bottom: none; /* Removes the bottom border from the last row */
+  border-bottom: none;
 }
 
 td {
