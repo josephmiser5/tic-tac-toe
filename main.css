@@ -1,5 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: rgb(56, 93, 124);
+  padding-bottom: 56px;
+}
+
 *, *::before, *::after {
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 html, body {
@@ -8,31 +19,17 @@ html, body {
   width: 100%;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  background-color: rgb(56, 93, 124);
-  padding-bottom: 56px; 
-}
-
-
 header {
   width: 100%;
   background: #222;
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 14px 20px;
   min-height: 72px;
-
   flex-wrap: wrap;
   gap: 10px;
-
-  flex: 0 0 auto;
 }
 
 header h1 {
@@ -44,7 +41,6 @@ header menu {
   list-style: none;
   margin: 0;
   padding: 0;
-
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -63,54 +59,44 @@ header a:hover {
   border-radius: 6px;
 }
 
-main {text-align: center;
+main {
+  text-align: center;
+  padding: 1rem;
 }
 
 h2 {
-    display: inline-block;
-    padding: 10px;
-    text-align: center;
-    font-size: 30px;
-    background-color: #3a4143;
-    border-radius: 6px;
-    color:aliceblue;
+  display: inline-block;
+  padding: 10px;
+  font-size: 30px;
+  background-color: #3a4143;
+  border-radius: 6px;
+  color: aliceblue;
 }
 
-#usernamelabel {
-    color:aliceblue;
-    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    font-weight: bold;
-}
-
-#usernamelabel,
-#passwordlabel {
+#usernamelabel, #passwordlabel {
   display: none;
 }
 
 input, textarea {
-  width: 250px;
+  width: 100%;
+  max-width: 250px;
   padding: 12px 14px;
   font-size: 16px;
-  border-radius: 50px;
+  border-radius: 25px;
   border: 0;
   margin-bottom: 12px;
 }
 
 button {
   font-size: 18px;
-  padding: 12px 20px; 
-}
-
-button {
-  width: 160px;
-  height: 48px;
+  padding: 12px 20px;
 }
 
 #login, #create {
-  padding: 10px 18px;     
+  padding: 10px 18px;
   font-size: 16px;
   border: none;
-  border-radius: 9999px;   
+  border-radius: 25px;
 }
 
 #login {
@@ -119,7 +105,7 @@ button {
 }
 
 #create {
-  background: gray; /* like your screenshot */
+  background: gray;
   color: white;
 }
 
@@ -128,12 +114,7 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-
   background: #000;
   color: #fff;
   padding: 12px 16px;
-}
-
-body {
-  padding-bottom: 56px;
 }

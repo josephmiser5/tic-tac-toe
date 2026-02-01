@@ -1,14 +1,7 @@
-*, *::before, *::after {
-  box-sizing: border-box; 
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
+  font-family: 'Roboto', sans-serif;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -16,23 +9,21 @@ body {
   padding-bottom: 56px; 
 }
 
+*, *::before, *::after {
+  box-sizing: border-box; 
+}
 
 header {
   width: 100%;
   background: #222;
   color: white;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 14px 20px;
   min-height: 72px;
-
   flex-wrap: wrap;
   gap: 10px;
-
-  flex: 0 0 auto;
 }
 
 header h1 {
@@ -44,7 +35,6 @@ header menu {
   list-style: none;
   margin: 0;
   padding: 0;
-
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -63,42 +53,38 @@ header a:hover {
   border-radius: 6px;
 }
 
-main {text-align: center;
+main {
+  text-align: center;
+  width: 100%;
+  padding: 1rem;
 }
-
 
 table {
   width: 100%;
-  border-collapse: collapse;
   margin: 1rem 0;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);}
+  border-radius: 8px;
+  overflow: hidden;
+}
 
-#win-loss-header {
-  font-family: Arial, Helvetica, sans-serif;
+thead th {
   font-size: larger;
   color: aliceblue;
-}
-
-th, td {
-  padding: 0.75rem;
+  background-color: #333;
   text-align: left;
-  font-family: Arial, Helvetica, sans-serif;
-  border-bottom: 1px solid #ddd;
+  padding: 0.75rem 1rem;
 }
 
+tbody td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
 
 tbody tr:nth-child(even) {
-  background-color: #f0edd5;
+  background-color: #4a5a6a;
 }
 
-
-
-tbody tr:last-child td {
-  border-bottom: none;
-}
-
-td {
-  padding: 10px 50px;
+tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 footer {
@@ -106,7 +92,6 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-
   background: #000;
   color: #fff;
   padding: 12px 16px;

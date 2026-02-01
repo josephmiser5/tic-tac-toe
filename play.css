@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+body {
+  font-family: 'Roboto', sans-serif;
+}
 *, *::before, *::after {
   box-sizing: border-box; 
 }
@@ -86,14 +90,12 @@ main {
 #usernamebox {
   border-radius: 1000000000000px;
   background-color: rgb(131, 194, 12);
-  font-family: Arial;
   font-weight: bold;
 
   border: 4px solid #222;
 }
 
 .text-box-border {
-  font-family: Arial;
   font-weight: bold;
   color: aliceblue;
   font-size: x-large;

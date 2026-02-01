@@ -1,41 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Tic-Tac-Toe HTML</title>
-        <link rel="stylesheet" href="main.css"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <title>Tic-Tac-Toe HTML</title>
 
-    </head>
-    <body>
-        <header>
-            <h1>Tic-Tac-Toe</h1>
-            <nav>
-                <menu>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="play.html">Play</a></li>
-                    <li><a href="friends.html">Friends</a></li>
-                    <li><a href="win-loss.html">Win-Loss</a></li>
-                </menu>
-            </nav>
-        </header>
-        <p></p> 
-        <main>
-           <h2>Login and Start Having Fun</h2> 
-            <form method="get" action="play.html">
-              <label id="usernamelabel" for="username">Username:</label>
-              <input type="text" id="username" name="username" placeholder="Enter username">
-              <br>
-              <label id="passwordlabel" for="password">Password:</label>
-              <input type="text" id="password" name="password" placeholder="Enter password">
-                <p></p>
-              <button id="login" type="submit">Login</button>
-              <button id="create" type="submit">Create</button>
-            </form>
-        </main>
-        <footer>
-            <hr /> 
-            <span class="text-reset">Joseph Miser</span>
-            <a href="https://github.com/josephmiser5/tic-tac-toe">GitHub</a>
-        </footer>
-    </body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+    <link rel="stylesheet" href="main.css"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <header class="d-flex justify-content-between align-items-center">
+      <h1 class="mb-0 mt-0">Tic-Tac-Toe</h1>
+
+      <nav>
+        <menu class="d-flex gap-3 mb-0">
+          <li><a class="nav-link text-white p-0" href="index.html">Home</a></li>
+          <li><a class="nav-link text-white p-0" href="play.html">Play</a></li>
+          <li><a class="nav-link text-white p-0" href="friends.html">Friends</a></li>
+          <li><a class="nav-link text-white p-0" href="win-loss.html">Win-Loss</a></li>
+        </menu>
+      </nav>
+    </header>
+
+    <main class="text-center mt-4">
+      <h2>Login and Start Having Fun</h2>
+
+      <form
+        method="get"
+        action="play.html"
+        class="d-flex flex-column align-items-center mt-3">
+
+        <label id="usernamelabel" for="username">Username:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          class="form-control mb-3 w-25"
+          placeholder="Enter username">
+
+        <label id="passwordlabel" for="password">Password:</label>
+        <input
+          type="text"
+          id="password"
+          name="password"
+          class="form-control mb-3 w-25"
+          placeholder="Enter password">
+
+        <div class="d-flex gap-3">
+          <button id="login" type="submit" class="btn btn-primary">
+            Login
+          </button>
+          <button id="create" type="submit" class="btn btn-secondary">
+            Create
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <footer class="text-center">
+      <hr />
+      <span class="text-reset">Joseph Miser</span>
+      <a
+        class="text-white ms-3"
+        href="https://github.com/josephmiser5/tic-tac-toe">
+        GitHub
+      </a>
+    </footer>
+  </body>
 </html>
