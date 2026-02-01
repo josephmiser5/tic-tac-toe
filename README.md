@@ -78,3 +78,25 @@ I am going to use the required technologies in the following ways.
 **WebSocket Placeholder**
 
 * Game page includes a websocket placeholder to show where realtime websocket information will be received
+
+
+**CSS deliverable**
+
+* I have completed all of the prerequisites:  
+  * Simon CSS deployed to my production environment  
+  * Link to my Github repo prominently displayed on footer of every page  
+  * Full git commit history  
+* The layout is visually appealing:  
+  * Good coloration  
+  * No overflowing elements  
+* Used CSS framework  
+  * I used bootstrap  
+* All visual elements are styled using CSS  
+* Responsive to different window sizes:  
+  * I used full screen and iphone xr to test resizing, and they both look good  
+* Used Roboto imported font  
+* Used different types of selectors:  
+  * Element  
+  * Class  
+  * Id  
+  * Pseudo
