@@ -22,7 +22,6 @@ body {
   padding-bottom: 56px; 
 }
 
-/* Header */
 header {
   width: 100%;
   background: #222;
@@ -64,7 +63,6 @@ header a:hover {
   border-radius: 6px;
 }
 
-/* Form inputs */
 form input {
   border-radius: 50px;
   width: 200px;
@@ -84,19 +82,17 @@ form button {
   border-radius: 50px;
 }
 
-/* Main content */
 main {
   text-align: center;
 }
 
-/* Table styling */
 table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-  background-color: #3a4143; /* darker background for entire table */
-  color: aliceblue; /* text color */
+  background-color: #3a4143;
+  color: aliceblue;
 }
 
 #tableheader {
@@ -106,21 +102,21 @@ table {
 th, td {
   padding: 0.75rem;
   text-align: left;
-  border-bottom: 1px solid #555; /* darker border */
+  border-bottom: 1px solid #555;
 }
 
 thead th {
-  background-color: #222; /* match header color */
+  background-color: #222;
   color: white;
   font-weight: bold;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #4a5053; /* slightly lighter than main table background */
+  background-color: #4a5053;
 }
 
 tbody tr:hover {
-  background-color: #5a6063; /* hover effect */
+  background-color: #5a6063;
 }
 
 tbody tr:last-child td {
@@ -131,12 +127,11 @@ td {
   padding: 10px 50px;
 }
 
-/* Friend buttons */
 #friend1, #friend2, #friend3, #friend4 {
   font-size: large;
   font-weight: bold;
-  background-color: #6c757d; /* dark gray button */
-  color: white; /* text readable */
+  background-color: #6c757d;
+  color: white;
   border: none;
   width: 100%;
   padding: 8px 0;
@@ -144,7 +139,6 @@ td {
   border-radius: 50px;
 }
 
-/* Footer */
 footer {
   position: fixed;
   left: 0;
