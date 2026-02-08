@@ -1,13 +1,20 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export function Login() {
+  const navigate = useNavigate();
+
+  function handleSubmit(e) {
+    e.preventDefault(); // stop the browser's normal form navigation
+    navigate("/play"); // go to the Play route
+  }
+
   return (
     <main className="text-center mt-4">
       <h2>Login and Start Having Fun</h2>
 
       <form
-        method="get"
-        action="play.html"
+        onSubmit={handleSubmit}
         className="d-flex flex-column align-items-center mt-3"
       >
         <label id="usernamelabel" htmlFor="username">

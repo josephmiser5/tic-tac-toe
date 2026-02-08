@@ -58,7 +58,7 @@ export function Play() {
           Play again?
         </button>
 
-        <form method="get" action="friends.html" className="d-inline">
+        <form method="get" action="friends" className="d-inline">
           <button id="addfriend" className="btn btn-warning btn-lg">
             Add friend?
           </button>
