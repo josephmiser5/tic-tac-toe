@@ -10,7 +10,7 @@ import { WinLoss } from "./win-loss/win-loss";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="app bg-dark text-light">
+      <div>
         <header className="d-flex justify-content-between align-items-center">
           <h1 className="mb-0 mt-0">Tic-Tac-Toe</h1>
 
