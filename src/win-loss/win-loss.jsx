@@ -1,4 +1,5 @@
 import React from "react";
+import "./win-loss.css";
 
 export function WinLoss() {
   return (
