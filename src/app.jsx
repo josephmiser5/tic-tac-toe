@@ -6,8 +6,13 @@ import { Login } from "./login/login";
 import { Play } from "./play/play";
 import { Friends } from "./friends/friends";
 import { WinLoss } from "./win-loss/win-loss";
+import { useState } from "react";
 
 export default function App() {
+  const [user, setUser] = useState(localStorage.getItem("user") || null);
+  const [password, setPassword] = useState(
+    localStorage.getItem("password") || null,
+  );
   return (
     <BrowserRouter>
       <div>
@@ -22,26 +27,36 @@ export default function App() {
                 </NavLink>
               </li>
               <li>
-                <NavLink className="nav-link text-white p-0" to="/play">
-                  Play
-                </NavLink>
+                {user && password && (
+                  <NavLink className="nav-link text-white p-0" to="/play">
+                    Play
+                  </NavLink>
+                )}
               </li>
               <li>
-                <NavLink className="nav-link text-white p-0" to="/friends">
-                  Friends
-                </NavLink>
+                {user && password && (
+                  <NavLink className="nav-link text-white p-0" to="/friends">
+                    Friends
+                  </NavLink>
+                )}
               </li>
               <li>
-                <NavLink className="nav-link text-white p-0" to="/win-loss">
-                  Win-Loss
-                </NavLink>
+                {user && password && (
+                  <NavLink className="nav-link text-white p-0" to="/win-loss">
+                    Win-Loss
+                  </NavLink>
+                )}
               </li>
             </menu>
           </nav>
         </header>
 
         <Routes>
-          <Route path="/" element={<Login />} exact />
+          <Route
+            path="/"
+            element={<Login setUsername={setUser} setPass={setPassword} />}
+            exact
+          />
           <Route path="/play" element={<Play />} />
           <Route path="/win-loss" element={<WinLoss />} />
           <Route path="/friends" element={<Friends />} />
