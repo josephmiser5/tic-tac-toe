@@ -28,6 +28,7 @@ export function Play() {
   const [isx, setIsx] = useLocalStorage("isx", Math.random() < 0.5);
   const [startedAsX] = useLocalStorage("startedas", () => Math.random() < 0.5);
   const [winner, setWinner] = useState(null);
+  const [gamemode, setGameMode] = useLocalStorage("gamemode", "");
   const [user] = useState(localStorage.getItem("user"));
 
   function displayImage() {
@@ -62,8 +63,9 @@ export function Play() {
     );
 
     if (hasWon) {
-      setWinner(currentPlayer);
+      resetGame();
       alert(`${currentPlayer} wins`);
+      return;
     } else if (nextMoves === 9) {
       alert("draw");
     }
@@ -72,6 +74,18 @@ export function Play() {
     setNumMoves(nextMoves);
     setIsx(!isx);
   };
+
+  function resetGame() {
+    // Remove only game keys, leaving "user" and "startedas" untouched
+    localStorage.removeItem("board");
+    localStorage.removeItem("numMoves");
+    localStorage.removeItem("isx");
+
+    setBoard(Array(9).fill(null));
+    setNumMoves(0);
+    setIsx(Math.random() < 0.5);
+    setWinner(null);
+  }
 
   function LiveActivity() {
     const [message, setMessage] = useState("");
@@ -92,13 +106,31 @@ export function Play() {
   return (
     <main className="container text-center my-4">
       <div className="d-flex justify-content-center gap-3 flex-wrap mb-4">
-        <button id="bestof1" className="btn btn-success btn-lg">
+        <button
+          onClick={() => {
+            setGameMode("Best of 1");
+          }}
+          id="bestof1"
+          className="btn btn-success btn-lg"
+        >
           Best of 1
         </button>
-        <button id="bestof2" className="btn btn-success btn-lg">
+        <button
+          onClick={() => {
+            setGameMode("Best of 2");
+          }}
+          id="bestof2"
+          className="btn btn-success btn-lg"
+        >
           Best of 2
         </button>
-        <button id="bestof3" className="btn btn-success btn-lg">
+        <button
+          onClick={() => {
+            setGameMode("Best of 3");
+          }}
+          id="bestof3"
+          className="btn btn-success btn-lg"
+        >
           Best of 3
         </button>
       </div>
@@ -109,8 +141,9 @@ export function Play() {
       >
         <p className="mb-0">&nbsp;Username: {user}</p>
       </div>
-
       <LiveActivity />
+
+      <span className="text-box-border d-block mb-3">{gamemode}</span>
       <div className="mb-3">
         <span className="text-box-border d-block mb-2">You are</span>
         <div className="d-flex justify-content-center gap-3">
@@ -178,7 +211,6 @@ export function Play() {
         <span className="text-box-border">X-score: 0</span>
         <span className="text-box-border">O-score: 0</span>
       </div>
-      <span className="text-box-border d-block mb-3">Best of 1</span>
       <div className="d-flex justify-content-center gap-3 flex-wrap mb-3">
         <button id="playagain" className="btn btn-success btn-lg">
           Play again?
