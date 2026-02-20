@@ -1,6 +1,6 @@
 import React from "react";
 import "./play.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function useLocalStorage(key, initialValue) {
   const [state, setState] = useState(() => {
@@ -73,6 +73,22 @@ export function Play() {
     setIsx(!isx);
   };
 
+  function LiveActivity() {
+    const [message, setMessage] = useState("");
+    const users = ["Billy", "Bob", "Joe"];
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        const randomUser = users[Math.floor(Math.random() * users.length)];
+        setMessage(`${randomUser} started a new game`);
+      }, 5000);
+
+      return () => clearInterval(interval); // cleanup on unmount
+    }, []);
+
+    return <p>{message}</p>;
+  }
+
   return (
     <main className="container text-center my-4">
       <div className="d-flex justify-content-center gap-3 flex-wrap mb-4">
@@ -86,7 +102,6 @@ export function Play() {
           Best of 3
         </button>
       </div>
-
       <div
         id="usernamebox"
         className="html-box mx-auto mb-3 p-2 border rounded"
@@ -95,8 +110,7 @@ export function Play() {
         <p className="mb-0">&nbsp;Username: {user}</p>
       </div>
 
-      <p>Waiting for opponent move.... (Websocket connection placeholder)</p>
-
+      <LiveActivity />
       <div className="mb-3">
         <span className="text-box-border d-block mb-2">You are</span>
         <div className="d-flex justify-content-center gap-3">
@@ -110,7 +124,6 @@ export function Play() {
           </button>
         </div>
       </div>
-
       <div
         style={{
           position: "relative",
@@ -161,14 +174,11 @@ export function Play() {
           ))}
         </div>
       </div>
-
       <div className="d-flex justify-content-center gap-3 mb-3 flex-wrap">
         <span className="text-box-border">X-score: 0</span>
         <span className="text-box-border">O-score: 0</span>
       </div>
-
       <span className="text-box-border d-block mb-3">Best of 1</span>
-
       <div className="d-flex justify-content-center gap-3 flex-wrap mb-3">
         <button id="playagain" className="btn btn-success btn-lg">
           Play again?
