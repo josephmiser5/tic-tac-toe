@@ -8,7 +8,7 @@ function useLocalStorage(key, initialValue) {
       try {
         return JSON.parse(stored);
       } catch {
-        // if storage is corrupted, fall back to initialValue
+        // ignore corrupted storage
       }
     }
     return typeof initialValue === "function" ? initialValue() : initialValue;
@@ -16,7 +16,7 @@ function useLocalStorage(key, initialValue) {
 
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]); // keep in sync [web:14]
+  }, [key, state]); // persist on change [web:2]
 
   const setValue = (valueOrUpdater) => {
     setState((prev) =>
@@ -43,13 +43,12 @@ const WIN_CONDITIONS = [
 function calculateWinner(cells) {
   for (const [a, b, c] of WIN_CONDITIONS) {
     const v = cells[a];
-    if (v && v === cells[b] && v === cells[c]) return v; // "X" or "O"
+    if (v && v === cells[b] && v === cells[c]) return v;
   }
   return null;
 }
 
 function parseBestOf(gamemode) {
-  // "Best of 1" -> 1, etc.
   const n = Number(String(gamemode).match(/\d+/)?.[0] ?? 1);
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
@@ -64,7 +63,7 @@ function LiveActivity() {
       setMessage(`${randomUser} started a new game`);
     }, 5000);
     return () => clearInterval(id);
-  }, [users]); // cleanup is important with intervals [web:20]
+  }, [users]);
 
   return <p>{message}</p>;
 }
@@ -78,35 +77,40 @@ export function Play() {
   const [turn, setTurn] = useLocalStorage("turn", "X");
   const [numMoves, setNumMoves] = useLocalStorage("numMoves", 0);
 
+  // Win/Loss table history
   const [gameHistory, setGameHistory] = useLocalStorage("gameHistory", []);
 
   function addWinLossRow({ result, xScore, oScore }) {
-    // result: "Win" | "Loss" | "Draw"
     const row = {
       user: "Computer",
-      result, // "Win" / "Loss" / "Draw"
+      result, // "Win" | "Loss" | "Draw"
       score: `${xScore}:${oScore}`,
       createdAt: Date.now(),
     };
-
-    setGameHistory((prev) => [row, ...prev]); // newest first
+    setGameHistory((prev) => [row, ...prev]);
   }
 
-  // Stable starter for "You are ..." display (string, not boolean)
+  // Starter ("You are") flips when a NEW series is started
   const [starter, setStarter] = useLocalStorage("starter", () =>
     Math.random() < 0.5 ? "X" : "O",
   );
+
   // Series score (persists)
   const [score, setScore] = useLocalStorage("score", { X: 0, O: 0 });
 
-  //UI status
+  // Prevent double-logging (helps in React 18 dev StrictMode) [web:95]
+  const [seriesLogged, setSeriesLogged] = useLocalStorage(
+    "seriesLogged",
+    false,
+  );
+
+  // UI status
   const [roundResult, setRoundResult] = useState(null); // "X" | "O" | "draw" | null
   const [seriesWinner, setSeriesWinner] = useState(null); // "X" | "O" | null
 
   const [user] = useState(localStorage.getItem("user") ?? "");
 
   function displayImage() {
-    // keep existing assets, but base it on starter string
     return starter === "X" ? "orangeX.png" : "redO.png";
   }
 
@@ -118,32 +122,35 @@ export function Play() {
   }
 
   function resetSeries() {
-    const nextStarter = starter === "X" ? "O" : "X"; // alternate each series
+    const nextStarter = starter === "X" ? "O" : "X";
     setStarter(nextStarter);
 
     setScore({ X: 0, O: 0 });
     setSeriesWinner(null);
+    setSeriesLogged(false);
 
-    // start next series with the new starter
     resetRound({ nextStarter });
   }
 
-  function finishSeriesAndLog() {
-    const humanMark = starter;
-
-    if (seriesWinner === null) return;
-
-    const result = seriesWinner === humanMark ? "Win" : "Loss";
-
-    addWinLossRow({ result, xScore: score.X, oScore: score.O });
-  }
-
-  // If best-of changes, keep scores but re-check if someone already qualifies
+  // Keep seriesWinner in sync with score/neededToWin
   useEffect(() => {
     if (score.X >= neededToWin) setSeriesWinner("X");
     else if (score.O >= neededToWin) setSeriesWinner("O");
     else setSeriesWinner(null);
   }, [neededToWin, score.X, score.O]);
+
+  // Log immediately when the seriesWinner is reached (not on button click)
+  useEffect(() => {
+    if (!seriesWinner) return;
+    if (seriesLogged) return;
+
+    const computerMark = starter === "X" ? "O" : "X";
+
+    const result = seriesWinner === computerMark ? "Win" : "Loss";
+    addWinLossRow({ result, xScore: score.X, oScore: score.O });
+
+    setSeriesLogged(true);
+  }, [seriesWinner, seriesLogged, starter, score.X, score.O]); // runs when winner appears [web:89]
 
   const handleClick = (index) => {
     if (seriesWinner) return;
@@ -165,8 +172,6 @@ export function Play() {
       setRoundResult(w);
       setScore((prev) => {
         const next = { ...prev, [w]: prev[w] + 1 };
-        if (next.X >= neededToWin) setSeriesWinner("X");
-        if (next.O >= neededToWin) setSeriesWinner("O");
         return next;
       });
       return;
@@ -187,6 +192,7 @@ export function Play() {
           onClick={() => setGameMode("Best of 1")}
           id="bestof1"
           className="btn btn-success btn-lg"
+          type="button"
         >
           Best of 1
         </button>
@@ -194,6 +200,7 @@ export function Play() {
           onClick={() => setGameMode("Best of 2")}
           id="bestof2"
           className="btn btn-success btn-lg"
+          type="button"
         >
           Best of 2
         </button>
@@ -201,6 +208,7 @@ export function Play() {
           onClick={() => setGameMode("Best of 3")}
           id="bestof3"
           className="btn btn-success btn-lg"
+          type="button"
         >
           Best of 3
         </button>
@@ -319,12 +327,8 @@ export function Play() {
           className="btn btn-success btn-lg"
           type="button"
           onClick={() => {
-            if (seriesWinner) {
-              finishSeriesAndLog(); // <-- write a row for WinLoss table
-              resetSeries(); // <-- your existing reset that also flips starter
-            } else {
-              resetRound({ nextStarter: starter });
-            }
+            if (seriesWinner) resetSeries();
+            else resetRound({ nextStarter: starter });
           }}
         >
           {seriesWinner ? "New series?" : "Play again?"}
