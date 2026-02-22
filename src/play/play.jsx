@@ -78,22 +78,35 @@ export function Play() {
   const [turn, setTurn] = useLocalStorage("turn", "X");
   const [numMoves, setNumMoves] = useLocalStorage("numMoves", 0);
 
+  const [gameHistory, setGameHistory] = useLocalStorage("gameHistory", []);
+
+  function addWinLossRow({ result, xScore, oScore }) {
+    // result: "Win" | "Loss" | "Draw"
+    const row = {
+      user: "Computer",
+      result, // "Win" / "Loss" / "Draw"
+      score: `${xScore}:${oScore}`,
+      createdAt: Date.now(),
+    };
+
+    setGameHistory((prev) => [row, ...prev]); // newest first
+  }
+
   // Stable starter for "You are ..." display (string, not boolean)
-  const [starter] = useLocalStorage("starter", () =>
+  const [starter, setStarter] = useLocalStorage("starter", () =>
     Math.random() < 0.5 ? "X" : "O",
   );
-
   // Series score (persists)
   const [score, setScore] = useLocalStorage("score", { X: 0, O: 0 });
 
-  // For UI status
+  //UI status
   const [roundResult, setRoundResult] = useState(null); // "X" | "O" | "draw" | null
   const [seriesWinner, setSeriesWinner] = useState(null); // "X" | "O" | null
 
   const [user] = useState(localStorage.getItem("user") ?? "");
 
   function displayImage() {
-    // keep your existing assets, but base it on starter string
+    // keep existing assets, but base it on starter string
     return starter === "X" ? "orangeX.png" : "redO.png";
   }
 
@@ -105,9 +118,24 @@ export function Play() {
   }
 
   function resetSeries() {
+    const nextStarter = starter === "X" ? "O" : "X"; // alternate each series
+    setStarter(nextStarter);
+
     setScore({ X: 0, O: 0 });
     setSeriesWinner(null);
-    resetRound({ nextStarter: starter }); // start as "You are"
+
+    // start next series with the new starter
+    resetRound({ nextStarter });
+  }
+
+  function finishSeriesAndLog() {
+    const humanMark = starter;
+
+    if (seriesWinner === null) return;
+
+    const result = seriesWinner === humanMark ? "Win" : "Loss";
+
+    addWinLossRow({ result, xScore: score.X, oScore: score.O });
   }
 
   // If best-of changes, keep scores but re-check if someone already qualifies
@@ -291,9 +319,12 @@ export function Play() {
           className="btn btn-success btn-lg"
           type="button"
           onClick={() => {
-            // If series is over, restart series; otherwise just next round
-            if (seriesWinner) resetSeries();
-            else resetRound({ nextStarter: starter });
+            if (seriesWinner) {
+              finishSeriesAndLog(); // <-- write a row for WinLoss table
+              resetSeries(); // <-- your existing reset that also flips starter
+            } else {
+              resetRound({ nextStarter: starter });
+            }
           }}
         >
           {seriesWinner ? "New series?" : "Play again?"}
