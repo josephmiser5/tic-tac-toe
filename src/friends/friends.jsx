@@ -1,7 +1,15 @@
 import React from "react";
 import "./friends.css";
+import { useState } from "react";
 
 export function Friends() {
+  const [invite, setInvite] = useState("");
+
+  function friendClick(e) {
+    const friendName = e.currentTarget.textContent;
+    setInvite(`inviting ${friendName} to play...`);
+  }
+
   return (
     <main className="container my-4">
       <form
@@ -31,6 +39,7 @@ export function Friends() {
           This data will be loaded from a 3rd-party REST API (e.g., friends
           service).
         </p>
+        <p className="text-white"> {invite}</p>
       </section>
 
       <div className="table-responsive">
@@ -47,6 +56,7 @@ export function Friends() {
             <tr>
               <td>
                 <button
+                  onClick={friendClick}
                   id="friend1"
                   type="button"
                   className="btn btn-secondary w-100 mb-2"
@@ -58,6 +68,7 @@ export function Friends() {
             <tr>
               <td>
                 <button
+                  onClick={friendClick}
                   id="friend2"
                   type="button"
                   className="btn btn-secondary w-100 mb-2"
@@ -69,6 +80,7 @@ export function Friends() {
             <tr>
               <td>
                 <button
+                  onClick={friendClick}
                   id="friend3"
                   type="button"
                   className="btn btn-secondary w-100 mb-2"
@@ -80,6 +92,7 @@ export function Friends() {
             <tr>
               <td>
                 <button
+                  onClick={friendClick}
                   id="friend4"
                   type="button"
                   className="btn btn-secondary w-100 mb-2"

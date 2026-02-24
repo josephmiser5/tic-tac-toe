@@ -49,9 +49,9 @@ export function WinLoss() {
         <table className="table table-dark table-striped text-center">
           <thead className="table-secondary text-dark">
             <tr>
-              <th>User</th>
+              <th>Playing against</th>
               <th>Win-Loss</th>
-              <th>Score</th>
+              <th>Score X:O</th>
             </tr>
           </thead>
           <tbody>

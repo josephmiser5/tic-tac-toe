@@ -139,14 +139,16 @@ export function Play() {
     else setSeriesWinner(null);
   }, [neededToWin, score.X, score.O]);
 
-  // Log immediately when the seriesWinner is reached (not on button click)
+  //Log immediately when the seriesWinner is reached (not on button click)
   useEffect(() => {
     if (!seriesWinner) return;
     if (seriesLogged) return;
 
+    // Since you want the table user to be "computer", define computer as NOT the starter.
+    const humanMark = starter;
     const computerMark = starter === "X" ? "O" : "X";
 
-    const result = seriesWinner === computerMark ? "Win" : "Loss";
+    const result = seriesWinner === humanMark ? "Win" : "Loss";
     addWinLossRow({ result, xScore: score.X, oScore: score.O });
 
     setSeriesLogged(true);
@@ -172,6 +174,7 @@ export function Play() {
       setRoundResult(w);
       setScore((prev) => {
         const next = { ...prev, [w]: prev[w] + 1 };
+        // seriesWinner will be derived by effect above
         return next;
       });
       return;
