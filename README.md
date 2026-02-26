@@ -110,3 +110,12 @@ For this deliverable I ported all of my CSS and HTML over to react
 - Router
   - Routing between login and all other components
   - Routing is available on all pages
+
+**React Phase 2: Reactivity deliverable**  
+	I used React and Javascript to make this application fully functional for a single user. All technologies have mocked components.
+
+* I completed all prerequisites for this deliverable (Simon deployed, GitHub link, commits)  
+* I have four components (home, play, win-loss and friends) which are functional or have mocked functionality.  
+* There is routing between all components through the top bar.  
+* I used local storage to mock game history and keep current game moves.  
+* I used an interval to mock friends' games starting.
