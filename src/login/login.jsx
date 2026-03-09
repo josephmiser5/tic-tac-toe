@@ -8,8 +8,8 @@ export function Login({ setUsername }) {
   const [error, setError] = useState("");
 
   async function handleLogin(e) {
-    e.preventDefault();
-    const res = await fetch("http://localhost:3000/api/login", {
+    e?.preventDefault();
+    const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: user, password }),
@@ -25,7 +25,7 @@ export function Login({ setUsername }) {
 
   async function handleCreate() {
     if (!user || !password) return setError("Fill in both fields");
-    const res = await fetch("http://localhost:3000/api/register", {
+    const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: user, password }),
@@ -34,7 +34,7 @@ export function Login({ setUsername }) {
 
     const data = await res.json();
     if (!res.ok) return setError(data.error);
-    alert("Account created! You can now log in.");
+    await handleLogin();
   }
 
   return (
