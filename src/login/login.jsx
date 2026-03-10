@@ -19,8 +19,10 @@ export function Login({ setUsername }) {
     const data = await res.json();
     if (!res.ok) return setError(data.error);
 
-    setUsername(data.username);
+    setUser(data.username);
     navigate("/play");
+    localStorage.setItem("username", data.username);
+    props.setUser(data.username);
   }
 
   async function handleCreate() {

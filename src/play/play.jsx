@@ -1,34 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./play.css";
 
-function useLocalStorage(key, initialValue) {
-  const [state, setState] = useState(() => {
-    const stored = localStorage.getItem(key);
-    if (stored != null) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        // ignore corrupted storage
-      }
-    }
-    return typeof initialValue === "function" ? initialValue() : initialValue;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]); // persist on change [web:2]
-
-  const setValue = (valueOrUpdater) => {
-    setState((prev) =>
-      typeof valueOrUpdater === "function"
-        ? valueOrUpdater(prev)
-        : valueOrUpdater,
-    );
-  };
-
-  return [state, setValue];
-}
-
 const WIN_CONDITIONS = [
   [0, 1, 2],
   [3, 4, 5],
@@ -69,16 +41,17 @@ function LiveActivity() {
 }
 
 export function Play() {
-  const [gamemode, setGameMode] = useLocalStorage("gamemode", "Best of 1");
+  const [message, setMessage] = useState("");
+  const [gamemode, setGameMode] = useState("Best of 1");
   const bestOf = parseBestOf(gamemode);
   const neededToWin = Math.floor(bestOf / 2) + 1;
 
-  const [board, setBoard] = useLocalStorage("board", () => Array(9).fill(null));
-  const [turn, setTurn] = useLocalStorage("turn", "X");
-  const [numMoves, setNumMoves] = useLocalStorage("numMoves", 0);
+  const [board, setBoard] = useState(() => Array(9).fill(null));
+  const [turn, setTurn] = useState("X");
+  const [numMoves, setNumMoves] = useState(0);
 
   // Win/Loss table history
-  const [gameHistory, setGameHistory] = useLocalStorage("gameHistory", []);
+  const [gameHistory, setGameHistory] = useState([]);
 
   function addWinLossRow({ result, xScore, oScore }) {
     const row = {
@@ -91,24 +64,31 @@ export function Play() {
   }
 
   // Starter ("You are") flips when a NEW series is started
-  const [starter, setStarter] = useLocalStorage("starter", () =>
+  const [starter, setStarter] = useState(() =>
     Math.random() < 0.5 ? "X" : "O",
   );
 
   // Series score (persists)
-  const [score, setScore] = useLocalStorage("score", { X: 0, O: 0 });
+  const [score, setScore] = useState({ X: 0, O: 0 });
 
   // Prevent double-logging (helps in React 18 dev StrictMode) [web:95]
-  const [seriesLogged, setSeriesLogged] = useLocalStorage(
-    "seriesLogged",
-    false,
-  );
+  const [seriesLogged, setSeriesLogged] = useState(false);
 
   // UI status
   const [roundResult, setRoundResult] = useState(null); // "X" | "O" | "draw" | null
   const [seriesWinner, setSeriesWinner] = useState(null); // "X" | "O" | null
 
-  const [user] = useState(localStorage.getItem("user") ?? "");
+  //const [user] = useState(localStorage.getItem("user") ?? "");
+  useEffect(() => {
+    async function fetchProfile() {
+      const res = await fetch("/api/profile", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setMessage(data.message);
+    }
+    fetchProfile();
+  }, []);
 
   function displayImage() {
     return starter === "X" ? "orangeX.png" : "redO.png";
@@ -222,7 +202,7 @@ export function Play() {
         className="html-box mx-auto mb-3 p-2 border rounded"
         style={{ width: "300px" }}
       >
-        <p className="mb-0">&nbsp;Username: {user}</p>
+        <p className="mb-0">&nbsp;{message}</p>
       </div>
 
       <LiveActivity />

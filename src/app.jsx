@@ -7,12 +7,17 @@ import { Play } from "./play/play";
 import { Friends } from "./friends/friends";
 import { WinLoss } from "./win-loss/win-loss";
 import { useState } from "react";
+import { useEffect } from "react";
 
 export default function App() {
-  const [user, setUser] = useState(localStorage.getItem("user") || null);
-  const [password, setPassword] = useState(
-    localStorage.getItem("password") || null,
-  );
+  const [user, setUser] = useState(localStorage.getItem("username"));
+  useEffect(() => {
+    fetch("/api/profile", { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => setUser(data.username))
+      .catch(() => setUser(null));
+  }, []);
+
   return (
     <BrowserRouter>
       <div>
@@ -27,21 +32,21 @@ export default function App() {
                 </NavLink>
               </li>
               <li>
-                {user && password && (
+                {user && (
                   <NavLink className="nav-link text-white p-0" to="/play">
                     Play
                   </NavLink>
                 )}
               </li>
               <li>
-                {user && password && (
+                {user && (
                   <NavLink className="nav-link text-white p-0" to="/friends">
                     Friends
                   </NavLink>
                 )}
               </li>
               <li>
-                {user && password && (
+                {user && (
                   <NavLink className="nav-link text-white p-0" to="/win-loss">
                     Win-Loss
                   </NavLink>
@@ -52,11 +57,7 @@ export default function App() {
         </header>
 
         <Routes>
-          <Route
-            path="/"
-            element={<Login setUsername={setUser} setPass={setPassword} />}
-            exact
-          />
+          <Route path="/" element={<Login setUsername={setUser} />} exact />
           <Route path="/play" element={<Play />} />
           <Route path="/win-loss" element={<WinLoss />} />
           <Route path="/friends" element={<Friends />} />
