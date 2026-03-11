@@ -41,54 +41,114 @@ function LiveActivity() {
 }
 
 export function Play() {
+  // ── ALL state declarations first ──────────────────────────────────────
   const [message, setMessage] = useState("");
   const [gamemode, setGameMode] = useState("Best of 1");
-  const bestOf = parseBestOf(gamemode);
-  const neededToWin = Math.floor(bestOf / 2) + 1;
-
+  const [user, setUser] = useState(null);
   const [board, setBoard] = useState(() => Array(9).fill(null));
   const [turn, setTurn] = useState("X");
   const [numMoves, setNumMoves] = useState(0);
-
-  // Win/Loss table history
   const [gameHistory, setGameHistory] = useState([]);
+  const [starter, setStarter] = useState(() =>
+    Math.random() < 0.5 ? "X" : "O",
+  );
+  const [score, setScore] = useState({ X: 0, O: 0 });
+  const [seriesLogged, setSeriesLogged] = useState(false);
+  const [roundResult, setRoundResult] = useState(null);
+  const [seriesWinner, setSeriesWinner] = useState(null);
 
+  const bestOf = parseBestOf(gamemode);
+  const neededToWin = Math.floor(bestOf / 2) + 1;
+
+  // ── Restore state from localStorage on mount ──────────────────────────
+  useEffect(() => {
+    const saved = localStorage.getItem("ttt_gameState");
+    if (!saved) return;
+    try {
+      const s = JSON.parse(saved);
+      setBoard(s.board ?? Array(9).fill(null));
+      setTurn(s.turn ?? "X");
+      setNumMoves(s.numMoves ?? 0);
+      setStarter(s.starter ?? "X");
+      setScore(s.score ?? { X: 0, O: 0 });
+      setSeriesLogged(s.seriesLogged ?? false);
+      setGameMode(s.gamemode ?? "Best of 1");
+      setGameHistory(s.gameHistory ?? []);
+    } catch {
+      localStorage.removeItem("ttt_gameState");
+    }
+  }, []);
+
+  // ── Save state to localStorage on every change ────────────────────────
+  useEffect(() => {
+    localStorage.setItem(
+      "ttt_gameState",
+      JSON.stringify({
+        board,
+        turn,
+        numMoves,
+        starter,
+        score,
+        seriesLogged,
+        gamemode,
+        gameHistory,
+      }),
+    );
+  }, [
+    board,
+    turn,
+    numMoves,
+    starter,
+    score,
+    seriesLogged,
+    gamemode,
+    gameHistory,
+  ]);
+
+  // ── Fetch logged-in user ───────────────────────────────────────────────
+  useEffect(() => {
+    fetch("/api/profile", { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => setUser(data.username))
+      .catch(() => setUser(null));
+  }, []);
+
+  // ── Keep seriesWinner in sync with score/neededToWin ──────────────────
+  useEffect(() => {
+    if (score.X >= neededToWin) setSeriesWinner("X");
+    else if (score.O >= neededToWin) setSeriesWinner("O");
+    else setSeriesWinner(null);
+  }, [neededToWin, score.X, score.O]);
+
+  // ── Log result when series is won ─────────────────────────────────────
+  useEffect(() => {
+    if (!seriesWinner) return;
+    if (seriesLogged) return;
+
+    const humanMark = starter;
+    const result = seriesWinner === humanMark ? "win" : "loss";
+
+    fetch("/api/game/score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result }),
+      credentials: "include",
+    });
+
+    addWinLossRow({ result, xScore: score.X, oScore: score.O });
+    setSeriesLogged(true);
+  }, [seriesWinner, seriesLogged, starter, score.X, score.O]);
+
+  // ── Helpers ───────────────────────────────────────────────────────────
   function addWinLossRow({ result, xScore, oScore }) {
     const row = {
       user: "Computer",
-      result, // "Win" | "Loss" | "Draw"
+      result,
       score: `${xScore}:${oScore}`,
       createdAt: Date.now(),
     };
     setGameHistory((prev) => [row, ...prev]);
   }
-
-  // Starter ("You are") flips when a NEW series is started
-  const [starter, setStarter] = useState(() =>
-    Math.random() < 0.5 ? "X" : "O",
-  );
-
-  // Series score (persists)
-  const [score, setScore] = useState({ X: 0, O: 0 });
-
-  // Prevent double-logging (helps in React 18 dev StrictMode) [web:95]
-  const [seriesLogged, setSeriesLogged] = useState(false);
-
-  // UI status
-  const [roundResult, setRoundResult] = useState(null); // "X" | "O" | "draw" | null
-  const [seriesWinner, setSeriesWinner] = useState(null); // "X" | "O" | null
-
-  //const [user] = useState(localStorage.getItem("user") ?? "");
-  useEffect(() => {
-    async function fetchProfile() {
-      const res = await fetch("/api/profile", {
-        credentials: "include",
-      });
-      const data = await res.json();
-      setMessage(data.message);
-    }
-    fetchProfile();
-  }, []);
 
   function displayImage() {
     return starter === "X" ? "orangeX.png" : "redO.png";
@@ -104,35 +164,12 @@ export function Play() {
   function resetSeries() {
     const nextStarter = starter === "X" ? "O" : "X";
     setStarter(nextStarter);
-
     setScore({ X: 0, O: 0 });
     setSeriesWinner(null);
     setSeriesLogged(false);
-
     resetRound({ nextStarter });
+    localStorage.removeItem("ttt_gameState");
   }
-
-  // Keep seriesWinner in sync with score/neededToWin
-  useEffect(() => {
-    if (score.X >= neededToWin) setSeriesWinner("X");
-    else if (score.O >= neededToWin) setSeriesWinner("O");
-    else setSeriesWinner(null);
-  }, [neededToWin, score.X, score.O]);
-
-  //Log immediately when the seriesWinner is reached (not on button click)
-  useEffect(() => {
-    if (!seriesWinner) return;
-    if (seriesLogged) return;
-
-    // Since you want the table user to be "computer", define computer as NOT the starter.
-    const humanMark = starter;
-    const computerMark = starter === "X" ? "O" : "X";
-
-    const result = seriesWinner === humanMark ? "Win" : "Loss";
-    addWinLossRow({ result, xScore: score.X, oScore: score.O });
-
-    setSeriesLogged(true);
-  }, [seriesWinner, seriesLogged, starter, score.X, score.O]); // runs when winner appears [web:89]
 
   const handleClick = (index) => {
     if (seriesWinner) return;
@@ -140,7 +177,6 @@ export function Play() {
     if (board[index]) return;
 
     const current = turn;
-
     const nextBoard = [...board];
     nextBoard[index] = current;
 
@@ -152,11 +188,7 @@ export function Play() {
 
     if (w) {
       setRoundResult(w);
-      setScore((prev) => {
-        const next = { ...prev, [w]: prev[w] + 1 };
-        // seriesWinner will be derived by effect above
-        return next;
-      });
+      setScore((prev) => ({ ...prev, [w]: prev[w] + 1 }));
       return;
     }
 
@@ -167,6 +199,19 @@ export function Play() {
 
     setTurn(current === "X" ? "O" : "X");
   };
+
+  // ── Derived display values ────────────────────────────────────────────
+  const statusMessage = seriesWinner
+    ? seriesWinner === starter
+      ? "🎉 You won the series!"
+      : "💀 Computer won the series!"
+    : roundResult
+      ? roundResult === "draw"
+        ? "It's a draw!"
+        : roundResult === starter
+          ? "You won this round!"
+          : "Computer won this round!"
+      : `${turn === starter ? "Your" : "Computer's"} turn`;
 
   return (
     <main className="container text-center my-4">
@@ -202,7 +247,7 @@ export function Play() {
         className="html-box mx-auto mb-3 p-2 border rounded"
         style={{ width: "300px" }}
       >
-        <p className="mb-0">&nbsp;{message}</p>
+        <p className="mb-0">&nbsp;{user}</p>
       </div>
 
       <LiveActivity />

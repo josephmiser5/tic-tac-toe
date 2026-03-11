@@ -11,6 +11,7 @@ import { useEffect } from "react";
 
 export default function App() {
   const [user, setUser] = useState(localStorage.getItem("username"));
+
   useEffect(() => {
     fetch("/api/profile", { credentials: "include" })
       .then((r) => r.json())
