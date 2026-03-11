@@ -1,35 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./win-loss.css";
-import { useState, useEffect } from "react";
-
-function useLocalStorage(key, initialValue) {
-  const [state, setState] = useState(() => {
-    const stored = localStorage.getItem(key);
-    if (stored != null) {
-      try {
-        return JSON.parse(stored);
-      } catch {}
-    }
-    return typeof initialValue === "function" ? initialValue() : initialValue;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(state));
-  }, [key, state]); // persist pattern [web:2]
-
-  const setValue = (valueOrUpdater) => {
-    setState((prev) =>
-      typeof valueOrUpdater === "function"
-        ? valueOrUpdater(prev)
-        : valueOrUpdater,
-    );
-  };
-
-  return [state, setValue];
-}
 
 export function WinLoss() {
-  const [gameHistory] = useLocalStorage("gameHistory", []);
+  const [stats, setStats] = useState(null);
+  const [gameHistory, setGameHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch aggregate stats from backend
+  useEffect(() => {
+    fetch("/api/profile", { credentials: "include" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Not authenticated");
+        return r.json();
+      })
+      .then((data) => {
+        setStats(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("ttt_gameState");
+      if (saved) {
+        const s = JSON.parse(saved);
+        setGameHistory(s.gameHistory ?? []);
+      }
+    } catch {
+      setGameHistory([]);
+    }
+  }, []);
 
   return (
     <main className="container my-4 text-center">
