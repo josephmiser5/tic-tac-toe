@@ -20,6 +20,7 @@ export function Login({ setUsername }) {
     if (!res.ok) return setError(data.error);
 
     localStorage.setItem("username", data.username);
+    localStorage.setItem("login_status", true);
     setUsername(data.username);
     navigate("/play");
   }

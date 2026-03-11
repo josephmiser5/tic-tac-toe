@@ -1,7 +1,13 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./app.css";
-import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import { Login } from "./login/login";
 import { Play } from "./play/play";
 import { Friends } from "./friends/friends";
@@ -11,6 +17,9 @@ import { useEffect } from "react";
 
 export default function App() {
   const [user, setUser] = useState(localStorage.getItem("username"));
+  const [loggedin, setLoggedIn] = useState(
+    localStorage.getItem("login_status"),
+  );
 
   useEffect(() => {
     fetch("/api/profile", { credentials: "include" })
@@ -18,6 +27,18 @@ export default function App() {
       .then((data) => setUser(data.username))
       .catch(() => setUser(null));
   }, []);
+
+  async function logOut() {
+    if (loggedin == false) return;
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    setUser(null);
+    localStorage.removeItem("login_status");
+    window.location.href = "/";
+    localStorage.removeItem("username");
+  }
 
   return (
     <BrowserRouter>
@@ -74,6 +95,10 @@ export default function App() {
           >
             GitHub
           </a>
+          <button className="nav-link text-white p-0" onClick={logOut}>
+            {" "}
+            Logout{" "}
+          </button>
         </footer>
       </div>
     </BrowserRouter>
