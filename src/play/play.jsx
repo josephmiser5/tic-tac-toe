@@ -141,13 +141,12 @@ export function Play() {
 
   // ── Helpers ───────────────────────────────────────────────────────────
   function addWinLossRow({ result, xScore, oScore }) {
-    const row = {
-      user: "Computer",
-      result,
-      score: `${xScore}:${oScore}`,
-      createdAt: Date.now(),
-    };
-    setGameHistory((prev) => [row, ...prev]);
+    fetch("/api/game/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ result, score: `${xScore}:${oScore}` }),
+      credentials: "include",
+    });
   }
 
   function displayImage() {

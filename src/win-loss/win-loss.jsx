@@ -25,17 +25,14 @@ export function WinLoss() {
   }, []);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("ttt_gameState");
-      if (saved) {
-        const s = JSON.parse(saved);
-        setGameHistory(s.gameHistory ?? []);
-      }
-    } catch {
-      setGameHistory([]);
-    }
+    fetch("/api/game/history", { credentials: "include" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Not authenticated");
+        return r.json();
+      })
+      .then(setGameHistory)
+      .catch(() => setGameHistory([]));
   }, []);
-
   return (
     <main className="container my-4 text-center">
       <section className="mb-4">

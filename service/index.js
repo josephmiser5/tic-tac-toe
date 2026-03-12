@@ -51,6 +51,7 @@ app.post("/api/register", async (req, res) => {
     losses: 0,
     draws: 0,
     friends: [],
+    gameHistory: [],
   });
   res.status(201).json({ message: "Account created" });
 });
@@ -106,6 +107,24 @@ app.post("/api/game/score", authMiddleware, (req, res) => {
   else return res.status(400).json({ error: "Invalid result" });
 
   res.json({ wins: user.wins, losses: user.losses, draws: user.draws });
+});
+
+// POST a new history entry
+app.post("/api/game/history", authMiddleware, (req, res) => {
+  const user = findUser("username", req.user.username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  const { result, score } = req.body;
+  const entry = { user: "Computer", result, score, createdAt: Date.now() };
+  user.gameHistory.unshift(entry);
+  res.status(201).json(entry);
+});
+
+// GET history
+app.get("/api/game/history", authMiddleware, (req, res) => {
+  const user = findUser("username", req.user.username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  res.json(user.gameHistory);
 });
 
 // WIN/LOSS LEADERBOARD ENDPOINT
