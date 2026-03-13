@@ -12,7 +12,7 @@ export function Friends() {
   }
 
   async function handleSearch(e) {
-    e.preventDefault(); // prevent page reload
+    e.preventDefault();
     if (!query.trim()) return;
 
     const res = await fetch(

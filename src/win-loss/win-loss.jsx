@@ -7,7 +7,6 @@ export function WinLoss() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch aggregate stats from backend
   useEffect(() => {
     fetch("/api/profile", { credentials: "include" })
       .then((r) => {

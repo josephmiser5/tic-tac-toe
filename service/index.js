@@ -12,12 +12,11 @@ app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.static("public"));
 
-// ─── In-memory data stores ────────────────────────────────────────────────────
 const users = [];
-const sessions = {}; // { [token]: { userId, username } }
+const sessions = {};
 const SALT_ROUNDS = 12;
 
-// ─── Auth middleware ──────────────────────────────────────────────────────────
+// middleware
 function authMiddleware(req, res, next) {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ error: "Not authenticated" });
@@ -32,7 +31,7 @@ function findUser(field, value) {
   return users.find((u) => u[field] === value) || null;
 }
 
-// AUTH ENDPOINTS
+// auth
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -52,6 +51,7 @@ app.post("/api/register", async (req, res) => {
     draws: 0,
     friends: [],
     gameHistory: [],
+    gameState: null,
   });
   res.status(201).json({ message: "Account created" });
 });
@@ -95,7 +95,7 @@ app.get("/api/profile", authMiddleware, (req, res) => {
   });
 });
 
-// GAME ENDPOINTS
+// game
 app.post("/api/game/score", authMiddleware, (req, res) => {
   const user = findUser("username", req.user.username);
   if (!user) return res.status(404).json({ error: "User not found" });
@@ -109,7 +109,6 @@ app.post("/api/game/score", authMiddleware, (req, res) => {
   res.json({ wins: user.wins, losses: user.losses, draws: user.draws });
 });
 
-// POST a new history entry
 app.post("/api/game/history", authMiddleware, (req, res) => {
   const user = findUser("username", req.user.username);
   if (!user) return res.status(404).json({ error: "User not found" });
@@ -120,14 +119,33 @@ app.post("/api/game/history", authMiddleware, (req, res) => {
   res.status(201).json(entry);
 });
 
-// GET history
 app.get("/api/game/history", authMiddleware, (req, res) => {
   const user = findUser("username", req.user.username);
   if (!user) return res.status(404).json({ error: "User not found" });
   res.json(user.gameHistory);
 });
 
-// WIN/LOSS LEADERBOARD ENDPOINT
+app.get("/api/game/state", authMiddleware, (req, res) => {
+  const user = findUser("username", req.user.username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  res.json(user.gameState ?? null);
+});
+
+app.post("/api/game/state", authMiddleware, (req, res) => {
+  const user = findUser("username", req.user.username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  user.gameState = req.body;
+  res.json({ ok: true });
+});
+
+app.delete("/api/game/state", authMiddleware, (req, res) => {
+  const user = findUser("username", req.user.username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+  user.gameState = null;
+  res.json({ ok: true });
+});
+
+// win-loss
 app.get("/api/leaderboard", (req, res) => {
   const board = users
     .map(({ username, wins, losses, draws }) => ({
@@ -152,7 +170,7 @@ app.get("/api/stats/:username", (req, res) => {
   });
 });
 
-// FRIENDS ENDPOINTS
+// friends
 app.get("/api/friends", authMiddleware, (req, res) => {
   const user = findUser("username", req.user.username);
   if (!user) return res.status(404).json({ error: "User not found" });
