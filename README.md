@@ -119,3 +119,14 @@ For this deliverable I ported all of my CSS and HTML over to react
 * There is routing between all components through the top bar.  
 * I used local storage to mock game history and keep current game moves.  
 * I used an interval to mock friends' games starting.
+
+**Service deliverable**
+
+* All prerequisites are completed  
+* Completed node.js/express service  
+* Created static middleware for my frontend  
+* Third party api call on my friends page to random user api  
+* Login endpoints that store credentials on service until i link up a database  
+* Frontend calls service endpoints for login, game history, and full game persistence  
+* Supports account creation, login, logout and authorization reqs  
+* Uses BCrypt to hash passwords
