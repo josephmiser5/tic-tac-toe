@@ -170,69 +170,6 @@ app.get("/api/stats/:username", (req, res) => {
   });
 });
 
-// friends
-app.get("/api/friends", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-
-  const enriched = user.friends.map((friendName) => {
-    const friend = findUser("username", friendName);
-    return friend
-      ? {
-          username: friend.username,
-          wins: friend.wins,
-          losses: friend.losses,
-          draws: friend.draws,
-        }
-      : { username: friendName };
-  });
-  res.json(enriched);
-});
-
-app.post("/api/friends/:username", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  const target = findUser("username", req.params.username);
-
-  if (!user) return res.status(404).json({ error: "Your account not found" });
-  if (!target) return res.status(404).json({ error: "User not found" });
-  if (target.username === user.username)
-    return res.status(400).json({ error: "You cannot friend yourself" });
-  if (user.friends.includes(target.username))
-    return res.status(409).json({ error: "Already friends" });
-
-  user.friends.push(target.username);
-  res.status(201).json({ message: `${target.username} added as a friend` });
-});
-
-app.delete("/api/friends/:username", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-
-  const before = user.friends.length;
-  user.friends = user.friends.filter((f) => f !== req.params.username);
-
-  if (user.friends.length === before)
-    return res.status(404).json({ error: "Friend not found" });
-
-  res.json({ message: `${req.params.username} removed from friends` });
-});
-
-app.get("/api/quote", async (_req, res) => {
-  try {
-    const response = await fetch(
-      "https://api.quotable.io/random?tags=inspirational",
-    );
-    if (!response.ok) throw new Error("Quote API unavailable");
-    const data = await response.json();
-    res.json({ content: data.content, author: data.author });
-  } catch {
-    res.json({
-      content: "Every master was once a beginner.",
-      author: "Unknown",
-    });
-  }
-});
-
 app.use((_req, res) => {
   res.sendFile("index.html", { root: "public" });
 });
