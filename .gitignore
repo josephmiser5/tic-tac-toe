@@ -1,3 +1,4 @@
 *.env
 *.envrc
+dbConfig.json
 node_modules/

@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const { v4: uuidv4 } = require("uuid");
+const DB = require("./database.js");
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 const app = express();
@@ -12,7 +13,6 @@ app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.static("public"));
 
-const users = [];
 const sessions = {};
 const SALT_ROUNDS = 12;
 
@@ -27,45 +27,30 @@ function authMiddleware(req, res, next) {
   next();
 }
 
-function findUser(field, value) {
-  return users.find((u) => u[field] === value) || null;
-}
-
 // auth
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
     return res.status(400).json({ error: "Username and password required" });
 
-  if (findUser("username", username))
+  if (await DB.getUser(username))
     return res.status(409).json({ error: "Username already taken" });
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  const id = uuidv4();
-  users.push({
-    id,
-    username,
-    passwordHash,
-    wins: 0,
-    losses: 0,
-    draws: 0,
-    friends: [],
-    gameHistory: [],
-    gameState: null,
-  });
+  await DB.createUser(username, passwordHash);
   res.status(201).json({ message: "Account created" });
 });
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
-  const user = findUser("username", username);
+  const user = await DB.getUser(username);
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
   const match = await bcrypt.compare(password, user.passwordHash);
   if (!match) return res.status(401).json({ error: "Invalid credentials" });
 
   const sessionToken = uuidv4();
-  sessions[sessionToken] = { userId: user.id, username: user.username };
+  sessions[sessionToken] = { userId: user._id, username: user.username };
 
   res.cookie("token", sessionToken, {
     httpOnly: true,
@@ -83,8 +68,8 @@ app.post("/api/logout", (req, res) => {
   res.json({ message: "Logged out" });
 });
 
-app.get("/api/profile", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
+app.get("/api/profile", authMiddleware, async (req, res) => {
+  const user = await DB.getUser(req.user.username);
   if (!user) return res.status(404).json({ error: "User not found" });
   res.json({
     username: user.username,
@@ -96,71 +81,51 @@ app.get("/api/profile", authMiddleware, (req, res) => {
 });
 
 // game
-app.post("/api/game/score", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
+app.post("/api/game/score", authMiddleware, async (req, res) => {
+  const { result } = req.body;
+  if (!["win", "loss", "draw"].includes(result))
+    return res.status(400).json({ error: "Invalid result" });
 
-  const { result } = req.body; // "win" | "loss" | "draw"
-  if (result === "win") user.wins++;
-  else if (result === "loss") user.losses++;
-  else if (result === "draw") user.draws++;
-  else return res.status(400).json({ error: "Invalid result" });
-
+  await DB.updateScore(req.user.username, result);
+  const user = await DB.getUser(req.user.username);
   res.json({ wins: user.wins, losses: user.losses, draws: user.draws });
 });
 
-app.post("/api/game/history", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-
+app.post("/api/game/history", authMiddleware, async (req, res) => {
   const { result, score } = req.body;
   const entry = { user: "Computer", result, score, createdAt: Date.now() };
-  user.gameHistory.unshift(entry);
+  await DB.addGameHistory(req.user.username, entry);
   res.status(201).json(entry);
 });
 
-app.get("/api/game/history", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-  res.json(user.gameHistory);
+app.get("/api/game/history", authMiddleware, async (req, res) => {
+  const history = await DB.getGameHistory(req.user.username);
+  res.json(history);
 });
 
-app.get("/api/game/state", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-  res.json(user.gameState ?? null);
+app.get("/api/game/state", authMiddleware, async (req, res) => {
+  const state = await DB.getGameState(req.user.username);
+  res.json(state);
 });
 
-app.post("/api/game/state", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-  user.gameState = req.body;
+app.post("/api/game/state", authMiddleware, async (req, res) => {
+  await DB.saveGameState(req.user.username, req.body);
   res.json({ ok: true });
 });
 
-app.delete("/api/game/state", authMiddleware, (req, res) => {
-  const user = findUser("username", req.user.username);
-  if (!user) return res.status(404).json({ error: "User not found" });
-  user.gameState = null;
+app.delete("/api/game/state", authMiddleware, async (req, res) => {
+  await DB.deleteGameState(req.user.username);
   res.json({ ok: true });
 });
 
-// win-loss
-app.get("/api/leaderboard", (req, res) => {
-  const board = users
-    .map(({ username, wins, losses, draws }) => ({
-      username,
-      wins,
-      losses,
-      draws,
-    }))
-    .sort((a, b) => b.wins - a.wins)
-    .slice(0, 10);
+// leaderboard
+app.get("/api/leaderboard", async (req, res) => {
+  const board = await DB.getLeaderboard();
   res.json(board);
 });
 
-app.get("/api/stats/:username", (req, res) => {
-  const user = findUser("username", req.params.username);
+app.get("/api/stats/:username", async (req, res) => {
+  const user = await DB.getUser(req.params.username);
   if (!user) return res.status(404).json({ error: "User not found" });
   res.json({
     username: user.username,
@@ -174,4 +139,6 @@ app.use((_req, res) => {
   res.sendFile("index.html", { root: "public" });
 });
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+DB.connect().then(() => {
+  app.listen(port, () => console.log(`Server running on port ${port}`));
+});
