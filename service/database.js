@@ -72,6 +72,13 @@ async function deleteGameState(username) {
   await gameStateCol.deleteOne({ username });
 }
 
+async function addFriend(username, friendUsername) {
+  await usersCollection.updateOne(
+    { username },
+    { $addToSet: { friends: friendUsername } },
+  );
+}
+
 module.exports = {
   connect,
   createUser,

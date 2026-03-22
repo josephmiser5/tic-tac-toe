@@ -80,6 +80,16 @@ app.get("/api/profile", authMiddleware, async (req, res) => {
   });
 });
 
+app.post("/api/profile", authMiddleware, async (req, res) => {
+  const { friend } = req.body;
+  if (!friend)
+    return res.status(400).json({ error: "Friend username required" });
+  const friendUser = await DB.getUser(friend);
+  if (!friendUser) return res.status(404).json({ error: "User not found" });
+  await DB.addFriend(req.user.username, friend);
+  res.json({ message: `Added ${friend} as a friend` });
+});
+
 // game
 app.post("/api/game/score", authMiddleware, async (req, res) => {
   const { result } = req.body;
