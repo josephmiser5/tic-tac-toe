@@ -22,6 +22,20 @@ export function Friends() {
     const usernames = data.results.map((u) => u.login.username);
     setFriends(usernames);
   }
+  async function addFriend(friendUsername) {
+    const res = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ friend: friendUsername }),
+    });
+    if (res.ok) {
+      setInvite(`Added ${friendUsername} as a friend!`);
+    } else {
+      const data = await res.json();
+      setInvite(data.error || "Failed to add friend");
+    }
+  }
 
   return (
     <main className="container my-4">
