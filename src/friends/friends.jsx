@@ -78,12 +78,13 @@ export function Friends() {
               {friends.map((username, index) => (
                 <tr key={index}>
                   <td>
+                    <span className="text-white">{username}</span>
                     <button
-                      onClick={friendClick}
+                      onClick={() => addFriend(username)}
                       type="button"
-                      className="btn btn-secondary w-100 mb-2"
+                      className="btn btn-success ms-3"
                     >
-                      {username}
+                      Add Friend
                     </button>
                   </td>
                 </tr>
