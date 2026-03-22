@@ -6,11 +6,6 @@ export function Friends() {
   const [friends, setFriends] = useState([]);
   const [query, setQuery] = useState("");
 
-  function friendClick(e) {
-    const friendName = e.currentTarget.textContent;
-    setInvite(`Inviting ${friendName} to play...`);
-  }
-
   async function handleSearch(e) {
     e.preventDefault();
     if (!query.trim()) return;
