@@ -130,3 +130,8 @@ For this deliverable I ported all of my CSS and HTML over to react
 * Frontend calls service endpoints for login, game history, and full game persistence  
 * Supports account creation, login, logout and authorization reqs  
 * Uses BCrypt to hash passwords
+
+**DB/Login Deliverable**
+
+* Stores game history in Mongo DB  
+* Stores login credentials in Mongo DB
