@@ -134,4 +134,4 @@ For this deliverable I ported all of my CSS and HTML over to react
 **DB/Login Deliverable**
 
 * Stores game history in Mongo DB  
-* Stores login credentials in Mongo DB
+* Stores and receieves login credentials from Mongo DB
