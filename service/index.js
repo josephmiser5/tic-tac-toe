@@ -152,6 +152,29 @@ app.get("/api/users/search", authMiddleware, async (req, res) => {
   res.json(results);
 });
 
+app.post("/api/friends/request", authMiddleware, async (req, res) => {
+  const { to } = req.body;
+  if (!to) return res.status(400).json({ error: "Recipient required" });
+  if (to === req.user.username)
+    return res.status(400).json({ error: "Cannot friend yourself" });
+  const target = await DB.getUser(to);
+  if (!target) return res.status(404).json({ error: "User not found" });
+  await DB.sendFriendRequest(req.user.username, to);
+  res.json({ message: `Friend request sent to ${to}` });
+});
+
+app.post("/api/friends/accept", authMiddleware, async (req, res) => {
+  const { from } = req.body;
+  await DB.acceptFriendRequest(req.user.username, from);
+  res.json({ message: `Accepted friend request from ${from}` });
+});
+
+app.post("/api/friends/reject", authMiddleware, async (req, res) => {
+  const { from } = req.body;
+  await DB.rejectFriendRequest(req.user.username, from);
+  res.json({ message: `Rejected friend request from ${from}` });
+});
+
 app.use((_req, res) => {
   res.sendFile("index.html", { root: "public" });
 });

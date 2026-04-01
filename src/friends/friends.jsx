@@ -9,26 +9,28 @@ export function Friends() {
   async function handleSearch(e) {
     e.preventDefault();
     if (!query.trim()) return;
-
     const res = await fetch(
-      `https://randomuser.me/api/?results=5&seed=${query}`,
+      `/api/users/search?q=${encodeURIComponent(query)}`,
+      { credentials: "include" },
     );
-    const data = await res.json();
-    const usernames = data.results.map((u) => u.login.username);
-    setFriends(usernames);
+    if (res.ok) {
+      const data = await res.json();
+      setFriends(data.map((u) => u.username));
+    }
   }
-  async function addFriend(friendUsername) {
-    const res = await fetch("/api/profile", {
+
+  async function sendRequest(friendUsername) {
+    const res = await fetch("/api/friends/request", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ friend: friendUsername }),
+      body: JSON.stringify({ to: friendUsername }),
     });
     if (res.ok) {
-      setInvite(`Added ${friendUsername} as a friend!`);
+      setInvite(`Friend request sent to ${friendUsername}!`);
     } else {
       const data = await res.json();
-      setInvite(data.error || "Failed to add friend");
+      setInvite(data.error || "Failed to send request");
     }
   }
 

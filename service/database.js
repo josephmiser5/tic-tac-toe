@@ -22,6 +22,7 @@ async function createUser(username, passwordHash) {
     losses: 0,
     draws: 0,
     friends: [],
+    friendRequests: [], // add this
   };
   await usersCol.insertOne(doc);
 }
@@ -92,6 +93,34 @@ async function searchUsers(query, excludeUsername) {
     .toArray();
 }
 
+async function sendFriendRequest(fromUsername, toUsername) {
+  await usersCol.updateOne(
+    { username: toUsername },
+    { $addToSet: { friendRequests: fromUsername } },
+  );
+}
+
+async function acceptFriendRequest(username, fromUsername) {
+  await usersCol.updateOne(
+    { username },
+    {
+      $pull: { friendRequests: fromUsername },
+      $addToSet: { friends: fromUsername },
+    },
+  );
+  await usersCol.updateOne(
+    { username: fromUsername },
+    { $addToSet: { friends: username } },
+  );
+}
+
+async function rejectFriendRequest(username, fromUsername) {
+  await usersCol.updateOne(
+    { username },
+    { $pull: { friendRequests: fromUsername } },
+  );
+}
+
 module.exports = {
   connect,
   createUser,
@@ -103,4 +132,9 @@ module.exports = {
   getGameState,
   saveGameState,
   deleteGameState,
+  addFriend,
+  searchUsers,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
 };
