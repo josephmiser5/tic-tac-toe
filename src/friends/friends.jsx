@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./friends.css";
 
 export function Friends() {
   const [invite, setInvite] = useState("");
   const [friends, setFriends] = useState([]);
   const [query, setQuery] = useState("");
+  const [pendingRequests, setPendingRequests] = useState([]);
 
   async function handleSearch(e) {
     e.preventDefault();
@@ -34,8 +35,66 @@ export function Friends() {
     }
   }
 
+  useEffect(() => {
+    fetch("/api/friends/requests", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setPendingRequests)
+      .catch(() => {});
+  }, []);
+
+  async function acceptRequest(fromUsername) {
+    const res = await fetch("/api/friends/accept", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ from: fromUsername }),
+    });
+    if (res.ok) {
+      setPendingRequests((prev) => prev.filter((u) => u !== fromUsername));
+      setInvite(`You and ${fromUsername} are now friends!`);
+    }
+  }
+
+  async function rejectRequest(fromUsername) {
+    const res = await fetch("/api/friends/reject", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ from: fromUsername }),
+    });
+    if (res.ok) {
+      setPendingRequests((prev) => prev.filter((u) => u !== fromUsername));
+    }
+  }
+
   return (
     <main className="container my-4">
+      {pendingRequests.length > 0 && (
+        <div className="mb-4">
+          <h5 className="text-white">Pending Friend Requests</h5>
+          {pendingRequests.map((username) => (
+            <div
+              key={username}
+              className="d-flex align-items-center justify-content-center gap-2 mb-2"
+            >
+              <span className="text-white">{username}</span>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => acceptRequest(username)}
+              >
+                Accept
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => rejectRequest(username)}
+              >
+                Reject
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       <form
         id="searchfriends"
         onSubmit={handleSearch}
@@ -77,7 +136,7 @@ export function Friends() {
                   <td>
                     <span className="text-white">{username}</span>
                     <button
-                      onClick={() => addFriend(username)}
+                      onClick={() => sendRequest(username)}
                       type="button"
                       className="btn btn-success ms-3"
                     >

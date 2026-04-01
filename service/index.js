@@ -152,6 +152,11 @@ app.get("/api/users/search", authMiddleware, async (req, res) => {
   res.json(results);
 });
 
+app.get("/api/friends/requests", authMiddleware, async (req, res) => {
+  const user = await DB.getUser(req.user.username);
+  res.json(user?.friendRequests || []);
+});
+
 app.post("/api/friends/request", authMiddleware, async (req, res) => {
   const { to } = req.body;
   if (!to) return res.status(400).json({ error: "Recipient required" });
