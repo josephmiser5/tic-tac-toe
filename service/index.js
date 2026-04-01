@@ -145,6 +145,13 @@ app.get("/api/stats/:username", async (req, res) => {
   });
 });
 
+app.get("/api/users/search", authMiddleware, async (req, res) => {
+  const { q } = req.query;
+  if (!q || !q.trim()) return res.json([]);
+  const results = await DB.searchUsers(q, req.user.username);
+  res.json(results);
+});
+
 app.use((_req, res) => {
   res.sendFile("index.html", { root: "public" });
 });

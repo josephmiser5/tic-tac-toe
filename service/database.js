@@ -73,10 +73,23 @@ async function deleteGameState(username) {
 }
 
 async function addFriend(username, friendUsername) {
-  await usersCollection.updateOne(
+  await usersCol.updateOne(
     { username },
     { $addToSet: { friends: friendUsername } },
   );
+}
+
+async function searchUsers(query, excludeUsername) {
+  const filter = {
+    username: { $regex: query, $options: "i" },
+  };
+  if (excludeUsername) {
+    filter.$and = [{ username: { $ne: excludeUsername } }];
+  }
+  return usersCol
+    .find(filter, { projection: { username: 1, _id: 0 } })
+    .limit(10)
+    .toArray();
 }
 
 module.exports = {
