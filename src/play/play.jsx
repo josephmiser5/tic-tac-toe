@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useWebSocket } from "../useWebSocket";
 import "./play.css";
 
 const WIN_CONDITIONS = [
@@ -41,6 +43,11 @@ function LiveActivity() {
 }
 
 export function Play() {
+  const [searchParams] = useSearchParams();
+  const multiplayer = searchParams.get("room");
+  const opponent = searchParams.get("opponent");
+  const myMark = searchParams.get("mark"); // "X" or "O"
+  const { send, on, connected } = useWebSocket();
   const [message, setMessage] = useState("");
   const [gamemode, setGameMode] = useState("Best of 1");
   const [user, setUser] = useState(null);
@@ -75,6 +82,35 @@ export function Play() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (multiplayer && myMark) {
+      setStarter(myMark);
+      setTurn("X");
+    }
+  }, [multiplayer, myMark]);
+  useEffect(() => {
+    if (!multiplayer) return;
+
+    const offMove = on("game_move", (msg) => {
+      setBoard((prev) => {
+        const next = [...prev];
+        next[msg.index] = msg.mark;
+        return next;
+      });
+      setNumMoves((prev) => prev + 1);
+      setTurn(myMark);
+    });
+
+    const offOver = on("game_over", (msg) => {
+      setRoundResult(msg.result);
+    });
+
+    return () => {
+      offMove();
+      offOver();
+    };
+  }, [multiplayer, on, myMark]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -175,24 +211,35 @@ export function Play() {
     if (roundResult) return;
     if (board[index]) return;
 
+    if (multiplayer && turn !== myMark) return;
+
     const current = turn;
     const nextBoard = [...board];
     nextBoard[index] = current;
-
     const nextMoves = numMoves + 1;
     const w = calculateWinner(nextBoard);
 
     setBoard(nextBoard);
     setNumMoves(nextMoves);
 
+    if (multiplayer) {
+      send({ type: "game_move", to: opponent, index, mark: current });
+    }
+
     if (w) {
       setRoundResult(w);
       setScore((prev) => ({ ...prev, [w]: prev[w] + 1 }));
+      if (multiplayer) {
+        send({ type: "game_over", to: opponent, result: w });
+      }
       return;
     }
 
     if (nextMoves === 9) {
       setRoundResult("draw");
+      if (multiplayer) {
+        send({ type: "game_over", to: opponent, result: "draw" });
+      }
       return;
     }
 
@@ -200,16 +247,20 @@ export function Play() {
   };
 
   const statusMessage = seriesWinner
-    ? seriesWinner === starter
+    ? seriesWinner === myMark
       ? "You won the series!"
-      : "Computer won the series!"
+      : `${opponent} won the series!`
     : roundResult
       ? roundResult === "draw"
         ? "It's a draw!"
-        : roundResult === starter
+        : roundResult === myMark
           ? "You won this round!"
-          : "Computer won this round!"
-      : `${turn === starter ? "Your" : "Computer's"} turn`;
+          : `${opponent} won this round!`
+      : multiplayer
+        ? turn === myMark
+          ? "Your turn"
+          : `${opponent}'s turn`
+        : `${turn === starter ? "Your" : "Computer's"} turn`;
 
   return (
     <main className="container text-center my-4">

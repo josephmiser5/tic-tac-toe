@@ -69,6 +69,32 @@ export function Friends() {
 
   return (
     <main className="container my-4">
+      {gameInvites.length > 0 && (
+        <div className="mb-4">
+          <h5 className="text-white">Game Invites</h5>
+          {gameInvites.map((invite) => (
+            <div
+              key={invite._id}
+              className="d-flex align-items-center justify-content-center gap-2 mb-2"
+            >
+              <span className="text-white">{invite.from} wants to play!</span>
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => acceptGameInvite(invite._id, invite.from)}
+              >
+                Play
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => rejectGameInvite(invite._id)}
+              >
+                Decline
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {pendingRequests.length > 0 && (
         <div className="mb-4">
           <h5 className="text-white">Pending Friend Requests</h5>
