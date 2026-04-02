@@ -6,6 +6,7 @@ export function Friends() {
   const [friends, setFriends] = useState([]);
   const [query, setQuery] = useState("");
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [gameInvites, setGameInvites] = useState([]);
 
   async function handleSearch(e) {
     e.preventDefault();

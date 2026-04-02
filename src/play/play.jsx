@@ -55,9 +55,7 @@ export function Play() {
   const [turn, setTurn] = useState("X");
   const [numMoves, setNumMoves] = useState(0);
   const [gameHistory, setGameHistory] = useState([]);
-  const [starter, setStarter] = useState(() =>
-    Math.random() < 0.5 ? "X" : "O",
-  );
+  const [starter, setStarter] = useState("X");
   const [score, setScore] = useState({ X: 0, O: 0 });
   const [seriesLogged, setSeriesLogged] = useState(false);
   const [roundResult, setRoundResult] = useState(null);
@@ -84,14 +82,10 @@ export function Play() {
   }, []);
 
   useEffect(() => {
-    if (multiplayer && myMark) {
-      setStarter(myMark);
-      setTurn("X");
-    }
-  }, [multiplayer, myMark]);
-  useEffect(() => {
-    if (!multiplayer) return;
+    if (myMark) setStarter(myMark);
+  }, [myMark]);
 
+  useEffect(() => {
     const offMove = on("game_move", (msg) => {
       setBoard((prev) => {
         const next = [...prev];
@@ -103,14 +97,19 @@ export function Play() {
     });
 
     const offOver = on("game_over", (msg) => {
-      setRoundResult(msg.result);
+      if (msg.result === "draw") {
+        setRoundResult("draw");
+      } else {
+        setRoundResult(msg.result);
+        setScore((prev) => ({ ...prev, [msg.result]: prev[msg.result] + 1 }));
+      }
     });
 
     return () => {
       offMove();
       offOver();
     };
-  }, [multiplayer, on, myMark]);
+  }, [on, myMark]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -210,40 +209,31 @@ export function Play() {
     if (seriesWinner) return;
     if (roundResult) return;
     if (board[index]) return;
+    if (turn !== myMark) return; // only click on your turn
 
-    if (multiplayer && turn !== myMark) return;
-
-    const current = turn;
     const nextBoard = [...board];
-    nextBoard[index] = current;
+    nextBoard[index] = myMark;
     const nextMoves = numMoves + 1;
     const w = calculateWinner(nextBoard);
 
     setBoard(nextBoard);
     setNumMoves(nextMoves);
-
-    if (multiplayer) {
-      send({ type: "game_move", to: opponent, index, mark: current });
-    }
+    send({ type: "game_move", to: opponent, index, mark: myMark });
 
     if (w) {
       setRoundResult(w);
       setScore((prev) => ({ ...prev, [w]: prev[w] + 1 }));
-      if (multiplayer) {
-        send({ type: "game_over", to: opponent, result: w });
-      }
+      send({ type: "game_over", to: opponent, result: w });
       return;
     }
 
     if (nextMoves === 9) {
       setRoundResult("draw");
-      if (multiplayer) {
-        send({ type: "game_over", to: opponent, result: "draw" });
-      }
+      send({ type: "game_over", to: opponent, result: "draw" });
       return;
     }
 
-    setTurn(current === "X" ? "O" : "X");
+    setTurn(myMark === "X" ? "O" : "X");
   };
 
   const statusMessage = seriesWinner
@@ -256,11 +246,9 @@ export function Play() {
         : roundResult === myMark
           ? "You won this round!"
           : `${opponent} won this round!`
-      : multiplayer
-        ? turn === myMark
-          ? "Your turn"
-          : `${opponent}'s turn`
-        : `${turn === starter ? "Your" : "Computer's"} turn`;
+      : turn === myMark
+        ? "Your turn"
+        : `Waiting for ${opponent}...`;
 
   return (
     <main className="container text-center my-4">

@@ -7,6 +7,7 @@ const DB = require("./database.js");
 
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 const app = express();
+const { PeerProxy } = require("./peerProxy.js");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -185,5 +186,8 @@ app.use((_req, res) => {
 });
 
 DB.connect().then(() => {
-  app.listen(port, () => console.log(`Server running on port ${port}`));
+  const server = app.listen(port, () =>
+    console.log(`Server running on port ${port}`),
+  );
+  new PeerProxy(server, sessions);
 });
