@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWebSocket } from "../useWebSocket";
 import "./friends.css";
 
 export function Friends() {
@@ -7,6 +9,55 @@ export function Friends() {
   const [query, setQuery] = useState("");
   const [pendingRequests, setPendingRequests] = useState([]);
   const [gameInvites, setGameInvites] = useState([]);
+  const navigate = useNavigate();
+  const { send, on, connected } = useWebSocket();
+
+  useEffect(() => {
+    const offInvite = on("game_invite", (msg) => {
+      setGameInvites((prev) => {
+        if (prev.some((i) => i.from === msg.from)) return prev;
+        return [...prev, { from: msg.from }];
+      });
+    });
+
+    const offReject = on("invite_rejected", (msg) => {
+      setInvite(`${msg.from} declined your invite.`);
+    });
+
+    const offStart = on("game_start", (msg) => {
+      navigate(
+        `/play?room=${msg.roomId}&opponent=${msg.opponent}&mark=${msg.mark}`,
+      );
+    });
+
+    return () => {
+      offInvite();
+      offReject();
+      offStart();
+    };
+  }, [on, navigate]);
+
+  useEffect(() => {
+    fetch("/api/friends/requests", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setPendingRequests)
+      .catch(() => {});
+  }, []);
+
+  function sendGameInvite(toUsername) {
+    send({ type: "game_invite", to: toUsername });
+    setInvite(`Invite sent to ${toUsername}, waiting...`);
+  }
+
+  function acceptGameInvite(fromUsername) {
+    send({ type: "invite_accept", to: fromUsername });
+    setGameInvites((prev) => prev.filter((i) => i.from !== fromUsername));
+  }
+
+  function rejectGameInvite(fromUsername) {
+    send({ type: "invite_reject", to: fromUsername });
+    setGameInvites((prev) => prev.filter((i) => i.from !== fromUsername));
+  }
 
   async function handleSearch(e) {
     e.preventDefault();
@@ -36,13 +87,6 @@ export function Friends() {
     }
   }
 
-  useEffect(() => {
-    fetch("/api/friends/requests", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setPendingRequests)
-      .catch(() => {});
-  }, []);
-
   async function acceptRequest(fromUsername) {
     const res = await fetch("/api/friends/accept", {
       method: "POST",
@@ -70,24 +114,28 @@ export function Friends() {
 
   return (
     <main className="container my-4">
+      {!connected && (
+        <p className="text-danger text-center">WebSocket disconnected</p>
+      )}
+
       {gameInvites.length > 0 && (
         <div className="mb-4">
-          <h5 className="text-white">Game Invites</h5>
-          {gameInvites.map((invite) => (
+          <h5 className="text-white text-center">Game Invites</h5>
+          {gameInvites.map((inv) => (
             <div
-              key={invite._id}
+              key={inv.from}
               className="d-flex align-items-center justify-content-center gap-2 mb-2"
             >
-              <span className="text-white">{invite.from} wants to play!</span>
+              <span className="text-white">{inv.from} wants to play!</span>
               <button
                 className="btn btn-success btn-sm"
-                onClick={() => acceptGameInvite(invite._id, invite.from)}
+                onClick={() => acceptGameInvite(inv.from)}
               >
                 Play
               </button>
               <button
                 className="btn btn-danger btn-sm"
-                onClick={() => rejectGameInvite(invite._id)}
+                onClick={() => rejectGameInvite(inv.from)}
               >
                 Decline
               </button>
@@ -98,7 +146,7 @@ export function Friends() {
 
       {pendingRequests.length > 0 && (
         <div className="mb-4">
-          <h5 className="text-white">Pending Friend Requests</h5>
+          <h5 className="text-white text-center">Pending Friend Requests</h5>
           {pendingRequests.map((username) => (
             <div
               key={username}
@@ -168,6 +216,13 @@ export function Friends() {
                       className="btn btn-success ms-3"
                     >
                       Add Friend
+                    </button>
+                    <button
+                      onClick={() => sendGameInvite(username)}
+                      type="button"
+                      className="btn btn-warning ms-2"
+                    >
+                      Invite to Play
                     </button>
                   </td>
                 </tr>
