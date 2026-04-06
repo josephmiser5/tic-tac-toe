@@ -34,18 +34,6 @@ export function WinLoss() {
   }, []);
   return (
     <main className="container my-4 text-center">
-      <section className="mb-4">
-        <h2>Win-Loss Service (3rd-party API Placeholder)</h2>
-        <p>This data will be loaded from a 3rd-party REST API.</p>
-      </section>
-
-      <section className="mb-4">
-        <h2>Stored Game History</h2>
-        <p>
-          The following data will be retrieved from the application database.
-        </p>
-      </section>
-
       <div className="table-responsive">
         <table className="table table-dark table-striped text-center">
           <thead className="table-secondary text-dark">

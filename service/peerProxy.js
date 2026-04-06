@@ -4,7 +4,6 @@ class PeerProxy {
   constructor(httpServer, sessions) {
     const wss = new WebSocketServer({ noServer: true });
 
-    // Only upgrade requests to /ws
     httpServer.on("upgrade", (req, socket, head) => {
       if (req.url !== "/ws") {
         socket.destroy();
@@ -15,7 +14,6 @@ class PeerProxy {
       });
     });
 
-    // Map of username -> connection
     this.clients = new Map();
 
     wss.on("connection", (ws, req) => {
@@ -30,7 +28,6 @@ class PeerProxy {
       this.clients.set(username, ws);
       console.log(`WS connected: ${username}`);
 
-      // Keep alive with ping/pong
       ws.isAlive = true;
       ws.on("pong", () => {
         ws.isAlive = true;
@@ -52,7 +49,6 @@ class PeerProxy {
       });
     });
 
-    // Ping every 10 seconds, kill dead connections
     setInterval(() => {
       wss.clients.forEach((ws) => {
         if (!ws.isAlive) {
@@ -70,13 +66,21 @@ class PeerProxy {
       case "game_invite": {
         const target = this.clients.get(msg.to);
         if (target && target.readyState === 1) {
-          target.send(JSON.stringify({ type: "game_invite", from }));
+          target.send(
+            JSON.stringify({
+              type: "game_invite",
+              from,
+              gamemode: msg.gamemode,
+            }),
+          );
         }
         break;
       }
+
       case "invite_accept": {
         const inviter = this.clients.get(msg.to);
         const roomId = `${msg.to}-${from}-${Date.now()}`;
+        const gamemode = msg.gamemode || "Best of 1";
         if (inviter && inviter.readyState === 1) {
           inviter.send(
             JSON.stringify({
@@ -84,6 +88,7 @@ class PeerProxy {
               roomId,
               opponent: from,
               mark: "X",
+              gamemode,
             }),
           );
         }
@@ -95,6 +100,7 @@ class PeerProxy {
               roomId,
               opponent: msg.to,
               mark: "O",
+              gamemode,
             }),
           );
         }

@@ -103,8 +103,13 @@ app.post("/api/game/score", authMiddleware, async (req, res) => {
 });
 
 app.post("/api/game/history", authMiddleware, async (req, res) => {
-  const { result, score } = req.body;
-  const entry = { user: "Computer", result, score, createdAt: Date.now() };
+  const { result, score, opponent } = req.body;
+  const entry = {
+    user: opponent || "Unknown",
+    result,
+    score,
+    createdAt: Date.now(),
+  };
   await DB.addGameHistory(req.user.username, entry);
   res.status(201).json(entry);
 });

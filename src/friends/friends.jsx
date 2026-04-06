@@ -11,6 +11,18 @@ export function Friends() {
   const [gameInvites, setGameInvites] = useState([]);
   const navigate = useNavigate();
   const { send, on, connected } = useWebSocket();
+  const [sentRequests, setSentRequests] = useState([]);
+  const [selectedGameMode, setSelectedGameMode] = useState("Best of 1");
+  const [myFriends, setMyFriends] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/profile", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.friends) setMyFriends(data.friends);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const offInvite = on("game_invite", (msg) => {
@@ -26,7 +38,7 @@ export function Friends() {
 
     const offStart = on("game_start", (msg) => {
       navigate(
-        `/play?room=${msg.roomId}&opponent=${msg.opponent}&mark=${msg.mark}`,
+        `/play?room=${msg.roomId}&opponent=${msg.opponent}&mark=${msg.mark}&gamemode=${encodeURIComponent(msg.gamemode)}`,
       );
     });
 
@@ -45,12 +57,13 @@ export function Friends() {
   }, []);
 
   function sendGameInvite(toUsername) {
-    send({ type: "game_invite", to: toUsername });
-    setInvite(`Invite sent to ${toUsername}, waiting...`);
+    send({ type: "game_invite", to: toUsername, gamemode: selectedGameMode });
+    setInvite(`Invite sent to ${toUsername} (${selectedGameMode}), waiting...`);
   }
 
   function acceptGameInvite(fromUsername) {
-    send({ type: "invite_accept", to: fromUsername });
+    const inv = gameInvites.find((i) => i.from === fromUsername);
+    send({ type: "invite_accept", to: fromUsername, gamemode: inv?.gamemode });
     setGameInvites((prev) => prev.filter((i) => i.from !== fromUsername));
   }
 
@@ -81,6 +94,7 @@ export function Friends() {
     });
     if (res.ok) {
       setInvite(`Friend request sent to ${friendUsername}!`);
+      setSentRequests((prev) => [...prev, friendUsername]);
     } else {
       const data = await res.json();
       setInvite(data.error || "Failed to send request");
@@ -126,7 +140,9 @@ export function Friends() {
               key={inv.from}
               className="d-flex align-items-center justify-content-center gap-2 mb-2"
             >
-              <span className="text-white">{inv.from} wants to play!</span>
+              <span className="text-white">
+                {inv.from} wants to play {inv.gamemode}!
+              </span>
               <button
                 className="btn btn-success btn-sm"
                 onClick={() => acceptGameInvite(inv.from)}
@@ -170,6 +186,19 @@ export function Friends() {
         </div>
       )}
 
+      <div className="d-flex justify-content-center gap-3 mb-4">
+        {["Best of 1", "Best of 3", "Best of 5"].map((mode) => (
+          <button
+            key={mode}
+            onClick={() => setSelectedGameMode(mode)}
+            className={`btn btn-lg ${selectedGameMode === mode ? "btn-success" : "btn-outline-success"}`}
+            type="button"
+          >
+            {mode}
+          </button>
+        ))}
+      </div>
+
       <form
         id="searchfriends"
         onSubmit={handleSearch}
@@ -210,13 +239,25 @@ export function Friends() {
                 <tr key={index}>
                   <td>
                     <span className="text-white">{username}</span>
-                    <button
-                      onClick={() => sendRequest(username)}
-                      type="button"
-                      className="btn btn-success ms-3"
-                    >
-                      Add Friend
-                    </button>
+                    {myFriends.includes(username) ? (
+                      <span className="badge bg-info ms-3">Friend</span>
+                    ) : sentRequests.includes(username) ? (
+                      <button
+                        type="button"
+                        className="btn btn-secondary ms-3"
+                        disabled
+                      >
+                        Request Sent
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => sendRequest(username)}
+                        type="button"
+                        className="btn btn-success ms-3"
+                      >
+                        Add Friend
+                      </button>
+                    )}
                     <button
                       onClick={() => sendGameInvite(username)}
                       type="button"

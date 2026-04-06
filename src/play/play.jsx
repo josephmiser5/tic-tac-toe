@@ -63,8 +63,26 @@ export function Play() {
 
   const bestOf = parseBestOf(gamemode);
   const neededToWin = Math.floor(bestOf / 2) + 1;
+  const gamemodeParam = searchParams.get("gamemode");
 
   useEffect(() => {
+    if (gamemodeParam) setGameMode(gamemodeParam);
+  }, [gamemodeParam]);
+
+  useEffect(() => {
+    if (multiplayer) {
+      setBoard(Array(9).fill(null));
+      setTurn("X");
+      setNumMoves(0);
+      setScore({ X: 0, O: 0 });
+      setRoundResult(null);
+      setSeriesWinner(null);
+      setSeriesLogged(false);
+    }
+  }, [multiplayer]);
+
+  useEffect(() => {
+    if (multiplayer) return;
     fetch("/api/game/state", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((s) => {
@@ -79,7 +97,7 @@ export function Play() {
         setGameHistory(s.gameHistory ?? []);
       })
       .catch(() => {});
-  }, []);
+  }, [multiplayer]);
 
   useEffect(() => {
     if (myMark) setStarter(myMark);
@@ -168,15 +186,15 @@ export function Play() {
       credentials: "include",
     });
 
-    addWinLossRow({ result, xScore: score.X, oScore: score.O });
+    addWinLossRow({ result, xScore: score.X, oScore: score.O, opponent });
     setSeriesLogged(true);
   }, [seriesWinner, seriesLogged, starter, score.X, score.O]);
 
-  function addWinLossRow({ result, xScore, oScore }) {
+  function addWinLossRow({ result, xScore, oScore, opponent }) {
     fetch("/api/game/history", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ result, score: `${xScore}:${oScore}` }),
+      body: JSON.stringify({ result, score: `${xScore}:${oScore}`, opponent }),
       credentials: "include",
     });
   }
