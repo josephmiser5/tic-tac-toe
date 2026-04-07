@@ -135,3 +135,13 @@ For this deliverable I ported all of my CSS and HTML over to react
 
 * Stores game history in Mongo DB  
 * Stores and receieves login credentials from Mongo DB
+
+
+**Web Socket Deliverable**
+
+I used the websocket for real time game play and game invites, as well as friend requests.
+
+* I completed the prerequisites for this deliverable simon, gitHub link, commits.  
+*  Backend listens for websocket and frontend makes connection  
+*  Game data sent over websocket  
+*  WebSocket game data displayed on the game page, and friend request/invites displayed on the friends page.
