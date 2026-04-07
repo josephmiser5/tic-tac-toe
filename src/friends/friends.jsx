@@ -28,7 +28,7 @@ export function Friends() {
     const offInvite = on("game_invite", (msg) => {
       setGameInvites((prev) => {
         if (prev.some((i) => i.from === msg.from)) return prev;
-        return [...prev, { from: msg.from }];
+        return [...prev, { from: msg.from, gamemode: msg.gamemode }];
       });
     });
 

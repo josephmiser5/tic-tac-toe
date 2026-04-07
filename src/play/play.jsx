@@ -27,21 +27,6 @@ function parseBestOf(gamemode) {
   return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
-function LiveActivity() {
-  const [message, setMessage] = useState("");
-  const users = useMemo(() => ["Billy", "Bob", "Joe"], []);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      const randomUser = users[Math.floor(Math.random() * users.length)];
-      setMessage(`${randomUser} started a new game`);
-    }, 5000);
-    return () => clearInterval(id);
-  }, [users]);
-
-  return <p>{message}</p>;
-}
-
 export function Play() {
   const [searchParams] = useSearchParams();
   const multiplayer = searchParams.get("room");
@@ -270,33 +255,6 @@ export function Play() {
 
   return (
     <main className="container text-center my-4">
-      <div className="d-flex justify-content-center gap-3 flex-wrap mb-4">
-        <button
-          onClick={() => setGameMode("Best of 1")}
-          id="bestof1"
-          className="btn btn-success btn-lg"
-          type="button"
-        >
-          Best of 1
-        </button>
-        <button
-          onClick={() => setGameMode("Best of 2")}
-          id="bestof2"
-          className="btn btn-success btn-lg"
-          type="button"
-        >
-          Best of 2
-        </button>
-        <button
-          onClick={() => setGameMode("Best of 3")}
-          id="bestof3"
-          className="btn btn-success btn-lg"
-          type="button"
-        >
-          Best of 3
-        </button>
-      </div>
-
       <div
         id="usernamebox"
         className="html-box mx-auto mb-3 p-2 border rounded"
@@ -304,8 +262,6 @@ export function Play() {
       >
         <p className="mb-0">&nbsp;{user}</p>
       </div>
-
-      <LiveActivity />
 
       <span className="text-box-border d-block mb-3">
         {gamemode} (first to {neededToWin})
